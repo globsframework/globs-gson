@@ -5,7 +5,7 @@
     <packaging>jar</packaging>
     <artifactId>globs-gson</artifactId>
     <name>Generic Lightweight ObjectS gson</name>
-    <version>4.1-SNAPSHOT</version>
+    <version>4.1.0</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -13,26 +13,17 @@
 
     <repositories>
         <repository>
-            <id>github-marc</id>
-            <url>https://maven.pkg.github.com/MarcGuiot/*</url>
-        </repository>
-        <repository>
-            <id>central</id>
-            <url>https://repo1.maven.org/maven2</url>
+            <id>github-globsframework</id>
+            <url>https://maven.pkg.github.com/globsframework/*</url>
         </repository>
     </repositories>
 
     <distributionManagement>
         <repository>
-            <id>github</id>
+            <id>github-globsframework</id>
             <name>GitHub Packages</name>
             <url>https://maven.pkg.github.com/${env.GITHUB_REPOSITORY}</url>
         </repository>
-        <snapshotRepository>
-            <id>github</id>
-            <name>GitHub Packages</name>
-            <url>https://maven.pkg.github.com/${env.GITHUB_REPOSITORY}</url>
-        </snapshotRepository>
     </distributionManagement>
 
     <build>
@@ -66,14 +57,20 @@
         <dependency>
             <groupId>org.globsframework</groupId>
             <artifactId>globs</artifactId>
-            <version>4.1-SNAPSHOT</version>
+            <version>4.1.0</version>
         </dependency>
-            <dependency>
-              <groupId>org.globsframework</groupId>
-              <artifactId>globs-generate</artifactId>
-              <version>4.1-SNAPSHOT</version>
-                <scope>test</scope>
-            </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.10.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.globsframework</groupId>
+            <artifactId>globs-generate</artifactId>
+            <version>4.1.0</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -86,7 +83,6 @@
             <version>2.20.0</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
@@ -99,12 +95,6 @@
             <version>2.20.0</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.10.1</version>
-        </dependency>
-
     </dependencies>
 
 </project>
