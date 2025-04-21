@@ -92,7 +92,7 @@ public class PerfReadWriteTest {
         DefaultGlobModel globTypes = new DefaultGlobModel(AllCoreAnnotations.MODEL, globType);
         Gson gson = GlobsGson.create(globTypes::getType);
         String s = "";
-        final Glob[] array = collect.toArray(Glob[]::new);
+        final Glob[] array = collect.toArray(new Glob[0]);
         write(gson, array);
         write(gson, array);
         write(gson, array);

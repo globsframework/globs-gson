@@ -30,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
@@ -71,51 +72,49 @@ public class GlobsGsonAdapterTest {
         Gson gson = init();
         String json = gson.toJson(LocalType.TYPE);
 
-        assertEquivalent("""
-                {
-                  "kind": "test local type",
-                  "fields": [
-                    {
-                      "name": "id",
-                      "type": "int",
-                      "annotations": [
-                        {
-                          "_kind": "KeyField",
-                          "index": 0
-                        }
-                      ]
-                    },
-                    {
-                      "name": "a different name",
-                      "type": "string",
-                      "annotations": [
-                        {
-                          "_kind": "KeyField",
-                          "index": 1
-                        }
-                      ]
-                    },
-                    {
-                      "name": "data",
-                      "type": "string",
-                      "annotations": [
-                        {
-                          "_kind": "IsJsonContent"
-                        }
-                      ]
-                    },
-                    {
-                      "name": "value",
-                      "type": "double"
-                    }
-                  ],
-                  "annotations": [
-                    {
-                      "_kind": "Required"
-                    }
-                  ]
-                }
-                """, json);
+        assertEquivalent("{\n" +
+                         "  \"kind\": \"test local type\",\n" +
+                         "  \"fields\": [\n" +
+                         "    {\n" +
+                         "      \"name\": \"id\",\n" +
+                         "      \"type\": \"int\",\n" +
+                         "      \"annotations\": [\n" +
+                         "        {\n" +
+                         "          \"_kind\": \"KeyField\",\n" +
+                         "          \"index\": 0\n" +
+                         "        }\n" +
+                         "      ]\n" +
+                         "    },\n" +
+                         "    {\n" +
+                         "      \"name\": \"a different name\",\n" +
+                         "      \"type\": \"string\",\n" +
+                         "      \"annotations\": [\n" +
+                         "        {\n" +
+                         "          \"_kind\": \"KeyField\",\n" +
+                         "          \"index\": 1\n" +
+                         "        }\n" +
+                         "      ]\n" +
+                         "    },\n" +
+                         "    {\n" +
+                         "      \"name\": \"data\",\n" +
+                         "      \"type\": \"string\",\n" +
+                         "      \"annotations\": [\n" +
+                         "        {\n" +
+                         "          \"_kind\": \"IsJsonContent\"\n" +
+                         "        }\n" +
+                         "      ]\n" +
+                         "    },\n" +
+                         "    {\n" +
+                         "      \"name\": \"value\",\n" +
+                         "      \"type\": \"double\"\n" +
+                         "    }\n" +
+                         "  ],\n" +
+                         "  \"annotations\": [\n" +
+                         "    {\n" +
+                         "      \"_kind\": \"Required\"\n" +
+                         "    }\n" +
+                         "  ]\n" +
+                         "}\n", json);
     }
 
     private Gson init(GlobType... types) {
@@ -438,7 +437,8 @@ public class GlobsGsonAdapterTest {
         BlobField blob = globTypeBuilder.declareBlobField("blob");
         GlobField globField = globTypeBuilder.declareGlobField("glob", innerType);
         GlobArrayField globArrayField = globTypeBuilder.declareGlobArrayField("globArray", innerType);
-        GlobArrayUnionField globArrayUnionField = globTypeBuilder.declareGlobUnionArrayField("globArrayUnion", List.of(innerType, innerType2));
+        GlobArrayUnionField globArrayUnionField = globTypeBuilder.declareGlobUnionArrayField("globArrayUnion",
+                Arrays.asList(innerType, innerType2));
         GlobType globType = globTypeBuilder.get();
 
         Gson gson = init(globType, innerType, innerType2);

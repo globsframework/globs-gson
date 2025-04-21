@@ -141,7 +141,14 @@ public class ISO8601Utils {
     }
 
 
-    record IntOffset(int value, int len) {
+    static class IntOffset {
+        public final int value;
+        public final int len;
+
+        public IntOffset(int value, int len) {
+            this.value = value;
+            this.len = len;
+        }
     }
 
     /**

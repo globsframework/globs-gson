@@ -135,17 +135,16 @@ public class GSonUtilsTest {
     @Test
     public void writeBigNumberInString() {
         {
-            final Glob decode = GSonUtils.decode("""
-                    {
-                       "longId": 1234567890123
-                    }""", BigInt.TYPE);
+            final Glob decode = GSonUtils.decode(" " +
+                                                 "{ " +
+                                                 "\"longId\": 1234567890123" +
+                                                 "}", BigInt.TYPE);
             Assert.assertEquals("1234567890123", decode.get(BigInt.longId));
         }
         {
-            final Glob decode = GSonUtils.decode("""
-                    {
-                       "longId": 12345.67890123
-                    }""", BigInt.TYPE);
+            final Glob decode = GSonUtils.decode(" {" +
+                                                 " \"longId\": 12345.67890123" +
+                                                 "}", BigInt.TYPE);
             Assert.assertEquals("12345.67890123", decode.get(BigInt.longId));
         }
     }

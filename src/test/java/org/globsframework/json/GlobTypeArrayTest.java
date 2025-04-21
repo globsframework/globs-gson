@@ -27,49 +27,47 @@ public class GlobTypeArrayTest {
 
     @Test
     public void recursiveType() {
-        String name = """
-                [
-                  {
-                    "kind": "root",
-                    "fields": [
-                      {
-                        "name": "__children__",
-                        "type": "globArray",
-                        "kind": "Node"
-                      }
-                    ]
-                  },
-                  {
-                    "kind": "fieldNameAnnotation",
-                    "fields": [
-                      {
-                        "name": "name",
-                        "type": "string"
-                      }
-                    ]
-                  },
-                  {
-                    "kind": "Node",
-                    "fields": [
-                      {
-                        "name": "name",
-                        "type": "string",
-                        "annotations": [
-                          {
-                            "_kind": "fieldNameAnnotation",
-                            "name": "EAN"
-                          }
-                        ]
-                      },
-                      {
-                        "name": "__children__",
-                        "type": "globArray",
-                        "kind": "Node"
-                      }
-                    ]
-                  }
-                ]
-                """;
+        String name = "[\n" +
+                      "  {\n" +
+                      "    \"kind\": \"root\",\n" +
+                      "    \"fields\": [\n" +
+                      "      {\n" +
+                      "        \"name\": \"__children__\",\n" +
+                      "        \"type\": \"globArray\",\n" +
+                      "        \"kind\": \"Node\"\n" +
+                      "      }\n" +
+                      "    ]\n" +
+                      "  },\n" +
+                      "  {\n" +
+                      "    \"kind\": \"fieldNameAnnotation\",\n" +
+                      "    \"fields\": [\n" +
+                      "      {\n" +
+                      "        \"name\": \"name\",\n" +
+                      "        \"type\": \"string\"\n" +
+                      "      }\n" +
+                      "    ]\n" +
+                      "  },\n" +
+                      "  {\n" +
+                      "    \"kind\": \"Node\",\n" +
+                      "    \"fields\": [\n" +
+                      "      {\n" +
+                      "        \"name\": \"name\",\n" +
+                      "        \"type\": \"string\",\n" +
+                      "        \"annotations\": [\n" +
+                      "          {\n" +
+                      "            \"_kind\": \"fieldNameAnnotation\",\n" +
+                      "            \"name\": \"EAN\"\n" +
+                      "          }\n" +
+                      "        ]\n" +
+                      "      },\n" +
+                      "      {\n" +
+                      "        \"name\": \"__children__\",\n" +
+                      "        \"type\": \"globArray\",\n" +
+                      "        \"kind\": \"Node\"\n" +
+                      "      }\n" +
+                      "    ]\n" +
+                      "  }\n" +
+                      "]\n";
 
         Gson gson = GlobsGson.create(GlobTypeResolver.from(FieldName.TYPE));
         GlobType[] globTypes = gson.fromJson(name, GlobTypeSet.class).globType;
