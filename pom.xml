@@ -35,6 +35,8 @@
     </repositories>
 
     <scm>
+        <connection>scm:git:git@github.com:globsframework/globs-gson</connection>
+        <developerConnection>scm:git:git@github.com:globsframework/globs-gson</developerConnection>
         <url>https://github.com/globsframework/globs-gson</url>
     </scm>
 
