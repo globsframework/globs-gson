@@ -14,19 +14,15 @@ import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Objects;
 
-public class JsonFieldValueVisitor implements FieldValueVisitor {
-    private final JsonWriter jsonWriter;
+public class JsonFieldValueWithWriterVisitor implements FieldValueVisitorWithContext<JsonWriter> {
+    public final static JsonFieldValueWithWriterVisitor INSTANCE = new JsonFieldValueWithWriterVisitor();
 
-    public JsonFieldValueVisitor(JsonWriter jsonWriter) {
-        this.jsonWriter = jsonWriter;
-    }
-
-    public void visitInteger(IntegerField field, Integer value) throws Exception {
+    public void visitInteger(IntegerField field, Integer value, JsonWriter jsonWriter) throws Exception {
         jsonWriter.name(field.getName());
         jsonWriter.value(value);
     }
 
-    public void visitIntegerArray(IntegerArrayField field, int[] value) throws Exception {
+    public void visitIntegerArray(IntegerArrayField field, int[] value, JsonWriter jsonWriter) throws Exception {
         jsonWriter.name(field.getName());
         if (value != null) {
             jsonWriter.beginArray();
@@ -39,12 +35,12 @@ public class JsonFieldValueVisitor implements FieldValueVisitor {
         }
     }
 
-    public void visitDouble(DoubleField field, Double value) throws Exception {
+    public void visitDouble(DoubleField field, Double value, JsonWriter jsonWriter) throws Exception {
         jsonWriter.name(field.getName());
         jsonWriter.value(value);
     }
 
-    public void visitDoubleArray(DoubleArrayField field, double[] value) throws Exception {
+    public void visitDoubleArray(DoubleArrayField field, double[] value, JsonWriter jsonWriter) throws Exception {
         jsonWriter.name(field.getName());
         if (value != null) {
             jsonWriter.beginArray();
@@ -57,12 +53,12 @@ public class JsonFieldValueVisitor implements FieldValueVisitor {
         }
     }
 
-    public void visitBigDecimal(BigDecimalField field, BigDecimal value) throws Exception {
+    public void visitBigDecimal(BigDecimalField field, BigDecimal value, JsonWriter jsonWriter) throws Exception {
         jsonWriter.name(field.getName());
         jsonWriter.value(value);
     }
 
-    public void visitBigDecimalArray(BigDecimalArrayField field, BigDecimal[] value) throws Exception {
+    public void visitBigDecimalArray(BigDecimalArrayField field, BigDecimal[] value, JsonWriter jsonWriter) throws Exception {
         jsonWriter.name(field.getName());
         if (value != null) {
             jsonWriter.beginArray();
@@ -75,7 +71,7 @@ public class JsonFieldValueVisitor implements FieldValueVisitor {
         }
     }
 
-    public void visitString(StringField field, String value) throws Exception {
+    public void visitString(StringField field, String value, JsonWriter jsonWriter) throws Exception {
         jsonWriter.name(field.getName());
         if (field.hasAnnotation(IsJsonContent.UNIQUE_KEY)) {
             jsonWriter.jsonValue(value);
@@ -84,7 +80,7 @@ public class JsonFieldValueVisitor implements FieldValueVisitor {
         }
     }
 
-    public void visitStringArray(StringArrayField field, String[] value) throws Exception {
+    public void visitStringArray(StringArrayField field, String[] value, JsonWriter jsonWriter) throws Exception {
         jsonWriter.name(field.getName());
         if (value != null) {
             jsonWriter.beginArray();
@@ -101,12 +97,12 @@ public class JsonFieldValueVisitor implements FieldValueVisitor {
         }
     }
 
-    public void visitBoolean(BooleanField field, Boolean value) throws Exception {
+    public void visitBoolean(BooleanField field, Boolean value, JsonWriter jsonWriter) throws Exception {
         jsonWriter.name(field.getName());
         jsonWriter.value(value);
     }
 
-    public void visitBooleanArray(BooleanArrayField field, boolean[] value) throws Exception {
+    public void visitBooleanArray(BooleanArrayField field, boolean[] value, JsonWriter jsonWriter) throws Exception {
         jsonWriter.name(field.getName());
         if (value != null) {
             jsonWriter.beginArray();
@@ -119,12 +115,12 @@ public class JsonFieldValueVisitor implements FieldValueVisitor {
         }
     }
 
-    public void visitLong(LongField field, Long value) throws Exception {
+    public void visitLong(LongField field, Long value, JsonWriter jsonWriter) throws Exception {
         jsonWriter.name(field.getName());
         jsonWriter.value(value);
     }
 
-    public void visitLongArray(LongArrayField field, long[] value) throws Exception {
+    public void visitLongArray(LongArrayField field, long[] value, JsonWriter jsonWriter) throws Exception {
         jsonWriter.name(field.getName());
         if (value != null) {
             jsonWriter.beginArray();
@@ -137,7 +133,7 @@ public class JsonFieldValueVisitor implements FieldValueVisitor {
         }
     }
 
-    public void visitDate(DateField field, LocalDate value) throws Exception {
+    public void visitDate(DateField field, LocalDate value, JsonWriter jsonWriter) throws Exception {
         DateTimeFormatter cachedDateTimeFormatter = GSonUtils.getCachedDateFormatter(field);
         jsonWriter.name(field.getName());
         if (value != null) {
@@ -147,7 +143,7 @@ public class JsonFieldValueVisitor implements FieldValueVisitor {
         }
     }
 
-    public void visitDateTime(DateTimeField field, ZonedDateTime value) throws Exception {
+    public void visitDateTime(DateTimeField field, ZonedDateTime value, JsonWriter jsonWriter) throws Exception {
         GSonUtils.FormaterForDateTime timeFormatter = GSonUtils.getCachedDateTimeFormatter(field);
         jsonWriter.name(field.getName());
         if (value != null) {
@@ -157,7 +153,7 @@ public class JsonFieldValueVisitor implements FieldValueVisitor {
         }
     }
 
-    public void visitBlob(BlobField field, byte[] value) throws Exception {
+    public void visitBlob(BlobField field, byte[] value, JsonWriter jsonWriter) throws Exception {
         jsonWriter.name(field.getName());
         if (value != null) {
             jsonWriter.value(Base64.getEncoder().encodeToString(value));
@@ -166,18 +162,18 @@ public class JsonFieldValueVisitor implements FieldValueVisitor {
         }
     }
 
-    public void visitGlob(GlobField field, Glob value) throws Exception {
+    public void visitGlob(GlobField field, Glob value, JsonWriter jsonWriter) throws Exception {
         jsonWriter.name(field.getName());
         if (value != null) {
             jsonWriter.beginObject();
-            addGlobAttributes(value);
+            addGlobAttributes(value, jsonWriter);
             jsonWriter.endObject();
         } else {
             jsonWriter.nullValue();
         }
     }
 
-    public void visitGlobArray(GlobArrayField field, Glob[] value) throws Exception {
+    public void visitGlobArray(GlobArrayField field, Glob[] value, JsonWriter jsonWriter) throws Exception {
         if (field.hasAnnotation(JsonAsObject.UNIQUE_KEY)) {
             jsonWriter.name(field.getName());
             jsonWriter.beginObject();
@@ -194,13 +190,13 @@ public class JsonFieldValueVisitor implements FieldValueVisitor {
                 jsonWriter.name(Objects.toString(value1));
                 jsonWriter.beginObject();
 
-                glob.safeAccept(new AbstractFieldValueVisitor() {
-                    public void notManaged(Field field, Object value) throws Exception {
+                glob.safeAccept(new AbstractFieldValueVisitor<JsonWriter>() {
+                    public void notManaged(Field field, Object value, JsonWriter jsonWriter) throws Exception {
                         if (field != fieldValueToUseAsName) {
-                            field.safeAcceptValue(JsonFieldValueVisitor.this, value);
+                            field.acceptValue(JsonFieldValueWithWriterVisitor.this, value, jsonWriter);
                         }
                     }
-                });
+                }, jsonWriter);
 
                 jsonWriter.endObject();
             }
@@ -211,7 +207,7 @@ public class JsonFieldValueVisitor implements FieldValueVisitor {
                 jsonWriter.beginArray();
                 for (Glob v : value) {
                     jsonWriter.beginObject();
-                    addGlobAttributes(v);
+                    addGlobAttributes(v, jsonWriter);
                     jsonWriter.endObject();
                 }
                 jsonWriter.endArray();
@@ -221,17 +217,17 @@ public class JsonFieldValueVisitor implements FieldValueVisitor {
         }
     }
 
-    public void addGlobAttributes(Glob v) {
-        v.safeAccept(this);
+    public void addGlobAttributes(Glob v, JsonWriter jsonWriter) throws Exception {
+        v.accept(this, jsonWriter);
     }
 
-    public void visitUnionGlob(GlobUnionField field, Glob value) throws Exception {
+    public void visitUnionGlob(GlobUnionField field, Glob value, JsonWriter jsonWriter) throws Exception {
         jsonWriter.name(field.getName());
         if (value != null) {
             jsonWriter.beginObject();
             jsonWriter.name(value.getType().getName());
             jsonWriter.beginObject();
-            addGlobAttributes(value);
+            addGlobAttributes(value, jsonWriter);
             jsonWriter.endObject();
             jsonWriter.endObject();
         } else {
@@ -239,7 +235,7 @@ public class JsonFieldValueVisitor implements FieldValueVisitor {
         }
     }
 
-    public void visitUnionGlobArray(GlobArrayUnionField field, Glob[] value) throws Exception {
+    public void visitUnionGlobArray(GlobArrayUnionField field, Glob[] value, JsonWriter jsonWriter) throws Exception {
         jsonWriter.name(field.getName());
         if (value != null) {
             jsonWriter.beginArray();
@@ -247,7 +243,7 @@ public class JsonFieldValueVisitor implements FieldValueVisitor {
                 jsonWriter.beginObject();
                 jsonWriter.name(v.getType().getName());
                 jsonWriter.beginObject();
-                addGlobAttributes(v);
+                addGlobAttributes(v, jsonWriter);
                 jsonWriter.endObject();
                 jsonWriter.endObject();
             }

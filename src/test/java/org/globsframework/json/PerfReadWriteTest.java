@@ -3,6 +3,7 @@ package org.globsframework.json;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonWriter;
 import org.globsframework.core.metamodel.GlobType;
 import org.globsframework.core.metamodel.GlobTypeBuilder;
 import org.globsframework.core.metamodel.annotations.AllCoreAnnotations;
@@ -15,6 +16,7 @@ import org.globsframework.core.model.Glob;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -69,7 +71,7 @@ public class PerfReadWriteTest {
     }
 
     @Test
-    public void perf() {
+    public void perf() throws IOException {
         GlobTypeBuilder globTypeBuilder = DefaultGlobTypeBuilder.init("perf");
         StringField str_1 = globTypeBuilder.declareStringField("str_1");
         StringField str_2 = globTypeBuilder.declareStringField("str_2");
@@ -113,7 +115,9 @@ public class PerfReadWriteTest {
         read(s, globType);
     }
 
-    private String write(Gson gson, Glob[] array) {
+    private String write(Gson gson, Glob[] array) throws IOException {
+        final StringBuilder stringBuilder = new StringBuilder();
+        JsonWriter jsonWriter = new JsonWriter(new GSonUtils.StringWriterToBuilder(stringBuilder));
         long start = System.nanoTime();
         StringBuilder writer = new StringBuilder();
         for (int i = 0; i < 1000; i++) {

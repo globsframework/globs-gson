@@ -226,13 +226,13 @@ public class GSonUtils {
             if (withKind) {
                 jsonWriter.name(GlobsGson.KIND_NAME).value(glob.getType().getName());
             }
-            JsonFieldValueVisitor jsonFieldValueVisitor;
+            JsonFieldValueWithWriterVisitor jsonFieldValueVisitor;
             if (hideSensitiveData) {
-                jsonFieldValueVisitor = new JsonFieldValueVisitorHideSensitiveData(jsonWriter);
+                jsonFieldValueVisitor = JsonFieldValueVisitorHideWithWriterSensitiveData.INSTANCE;
             } else {
-                jsonFieldValueVisitor = new JsonFieldValueVisitor(jsonWriter);
+                jsonFieldValueVisitor = JsonFieldValueWithWriterVisitor.INSTANCE;
             }
-            glob.safeAccept(jsonFieldValueVisitor);
+            glob.safeAccept(jsonFieldValueVisitor, jsonWriter);
             jsonWriter.endObject();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -242,10 +242,8 @@ public class GSonUtils {
     public static void encodeFieldValues(Writer out, FieldValues fieldValues) {
         try {
             JsonWriter jsonWriter = new JsonWriter(out);
-            jsonWriter.beginObject();
-            JsonFieldValueVisitor jsonFieldValueVisitor;
-            jsonFieldValueVisitor = new JsonFieldValueVisitor(jsonWriter);
-            fieldValues.safeAccept(jsonFieldValueVisitor);
+            jsonWriter.beginObject();;
+            fieldValues.safeAccept(JsonFieldValueWithWriterVisitor.INSTANCE, jsonWriter);
             jsonWriter.endObject();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -262,8 +260,7 @@ public class GSonUtils {
             if (withKind) {
                 jsonWriter.name(GlobsGson.KIND_NAME).value(key.getGlobType().getName());
             }
-            JsonFieldValueVisitor jsonFieldValueVisitor = new JsonFieldValueVisitor(jsonWriter);
-            key.safeAcceptOnKeyField(jsonFieldValueVisitor);
+            key.safeAcceptOnKeyField(JsonFieldValueWithWriterVisitor.INSTANCE, jsonWriter);
             jsonWriter.endObject();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -438,11 +435,11 @@ public class GSonUtils {
         try {
             JsonWriter jsonWriter = new JsonWriter(writer);
 
-            JsonFieldValueVisitor jsonFieldValueVisitor;
+            JsonFieldValueWithWriterVisitor jsonFieldValueVisitor;
             if (hideSensitiveData) {
-                jsonFieldValueVisitor = new JsonFieldValueVisitorHideSensitiveData(jsonWriter);
+                jsonFieldValueVisitor = JsonFieldValueVisitorHideWithWriterSensitiveData.INSTANCE;
             } else {
-                jsonFieldValueVisitor = new JsonFieldValueVisitor(jsonWriter);
+                jsonFieldValueVisitor = JsonFieldValueWithWriterVisitor.INSTANCE;
             }
 
             jsonWriter.beginArray();
@@ -451,7 +448,7 @@ public class GSonUtils {
                 if (withKind) {
                     jsonWriter.name(GlobsGson.KIND_NAME).value(v.getType().getName());
                 }
-                v.safeAccept(jsonFieldValueVisitor);
+                v.safeAccept(jsonFieldValueVisitor, jsonWriter);
                 jsonWriter.endObject();
             }
             jsonWriter.endArray();
@@ -467,7 +464,6 @@ public class GSonUtils {
 
     public static class WriteGlob {
         private final Writer writer;
-        private final JsonFieldValueVisitor jsonFieldValueVisitor;
         private final JsonWriter jsonWriter;
         private boolean withKind;
 
@@ -475,7 +471,6 @@ public class GSonUtils {
             this.writer = writer;
             jsonWriter = new JsonWriter(writer);
             this.withKind = withKind;
-            jsonFieldValueVisitor = new JsonFieldValueVisitor(jsonWriter);
             try {
                 jsonWriter.beginArray();
             } catch (IOException e) {
@@ -489,7 +484,7 @@ public class GSonUtils {
                 if (withKind) {
                     jsonWriter.name(GlobsGson.KIND_NAME).value(glob.getType().getName());
                 }
-                glob.safeAccept(jsonFieldValueVisitor);
+                glob.safeAccept(JsonFieldValueWithWriterVisitor.INSTANCE, jsonWriter);
                 jsonWriter.endObject();
             } catch (IOException e) {
                 throw new RuntimeException(e);
