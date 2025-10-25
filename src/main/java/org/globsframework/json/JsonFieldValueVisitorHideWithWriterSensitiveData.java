@@ -10,7 +10,7 @@ public class JsonFieldValueVisitorHideWithWriterSensitiveData extends JsonFieldV
     @Override
     public void visitString(StringField field, String value, JsonWriter jsonWriter) throws Exception {
         if (field.hasAnnotation(JsonHideValue.UNIQUE_KEY)) {
-            super.visitString(field, value != null ? "••••" : null, jsonWriter);
+            super.visitString(field, value != null ? "****" : null, jsonWriter);
         } else {
             super.visitString(field, value, jsonWriter);
         }

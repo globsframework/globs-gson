@@ -12,10 +12,14 @@ import org.globsframework.json.annottations.JsonAsObject_;
 import org.globsframework.json.annottations.JsonValueAsField_;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+
 public class ComplexJsonTest {
 
     @Test
-    public void name() {
+    public void name() throws IOException {
         MutableGlob a = A.TYPE.instantiate()
                 .set(A.a, "a")
                 .set(A.b, new Glob[]{
@@ -26,11 +30,30 @@ public class ComplexJsonTest {
                                 .set(B.name, "b2")
                                 .set(B.otherField, "o2")
                 });
-        String encode = GSonUtils.encode(a, true);
-        Assert.assertEquals("{\"_kind\":\"A\",\"a\":\"a\",\"b\":{\"b1\":{\"otherField\":\"o1\"},\"b2\":{\"otherField\":\"o2\"}}}", encode);
+        String encode;
+        final JsonSerializerServiceImpl jsonSerializerService = new JsonSerializerServiceImpl();
+        final GlobJson globJson = jsonSerializerService.get(A.TYPE);
+        {
+            encode = GSonUtils.encode(a, true);
+            Assert.assertEquals("{\"_kind\":\"A\",\"a\":\"a\",\"b\":{\"b1\":{\"otherField\":\"o1\"},\"b2\":{\"otherField\":\"o2\"}}}", encode);
+        }
+        {
+            final StringWriter writer = new StringWriter();
+            globJson.write(a, writer, true);
+            encode = writer.toString();
+            Assert.assertEquals("{\"_kind\":\"A\",\"a\":\"a\",\"b\":{\"b1\":{\"otherField\":\"o1\"},\"b2\":{\"otherField\":\"o2\"}}}", encode);
+        }
+        {
+            Glob newA = GSonUtils.decode(encode, A.TYPE);
+            check(newA);
+        }
+        {
+            Glob newA = globJson.read(new StringReader(encode));
+            check(newA);
+        }
+    }
 
-
-        Glob newA = GSonUtils.decode(encode, A.TYPE);
+    private static void check(Glob newA) {
         Assert.assertEquals(2, newA.get(A.b).length);
         Assert.assertEquals("b1", newA.get(A.b)[0].get(B.name));
         Assert.assertEquals("o1", newA.get(A.b)[0].get(B.otherField));

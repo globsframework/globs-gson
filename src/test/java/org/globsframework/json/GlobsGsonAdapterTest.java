@@ -3,10 +3,7 @@ package org.globsframework.json;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import org.globsframework.core.metamodel.GlobModel;
-import org.globsframework.core.metamodel.GlobType;
-import org.globsframework.core.metamodel.GlobTypeBuilder;
-import org.globsframework.core.metamodel.GlobTypeLoaderFactory;
+import org.globsframework.core.metamodel.*;
 import org.globsframework.core.metamodel.annotations.AllCoreAnnotations;
 import org.globsframework.core.metamodel.annotations.FieldName_;
 import org.globsframework.core.metamodel.annotations.KeyField_;
@@ -22,9 +19,7 @@ import org.globsframework.json.annottations.IsJsonContent;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -60,9 +55,22 @@ public class GlobsGsonAdapterTest {
 
         public static DoubleField VALUE;
 
+//        public static StringField CUSTOM;
+
         static {
-            GlobTypeLoaderFactory.create(LocalType.class, "test local type", true)
-                    .load();
+            final GlobTypeLoader testLocalType = GlobTypeLoaderFactory.create(LocalType.class, "test local type", true);
+            testLocalType.load();
+//            testLocalType.register(CUSTOM, ToStringFieldJsonSerializer.class, new ToStringFieldJsonSerializer() {
+//                @Override
+//                public String serialize(Glob value) {
+//                    return "__" + value.get(LocalType.CUSTOM);
+//                }
+//
+//                @Override
+//                public void deserialize(String value, MutableGlob glob) {
+//                    glob.set(LocalType.CUSTOM, value.substring(2));
+//                }
+//            });
         }
     }
 
@@ -501,7 +509,115 @@ public class GlobsGsonAdapterTest {
             StringBuilder v2 = new StringBuilder();
             field.toString(v2, instantiate.getValue(field));
             Assert.assertTrue(field.getName() + " : " +
-                            v1.toString() + "->" + v2.toString(),
+                              v1.toString() + "->" + v2.toString(),
+                    field.valueEqual(glob.getValue(field), instantiate.getValue(field)));
+        }
+    }
+    @Test
+    public void readAllFieldUsingGlobJson() throws IOException {
+        GlobTypeBuilder innerGlobTypeBuilder = DefaultGlobTypeBuilder.init("histo");
+        DoubleField valueField = innerGlobTypeBuilder.declareDoubleField("value");
+        IntegerField dateField = innerGlobTypeBuilder.declareIntegerField("date");
+        GlobType innerType = innerGlobTypeBuilder.get();
+
+        GlobTypeBuilder inner2GlobTypeBuilder = DefaultGlobTypeBuilder.init("histo2");
+        DoubleField valueField2 = inner2GlobTypeBuilder.declareDoubleField("value2");
+        IntegerField dateField2 = inner2GlobTypeBuilder.declareIntegerField("date2");
+        GlobType innerType2 = inner2GlobTypeBuilder.get();
+
+        GlobTypeBuilder globTypeBuilder = DefaultGlobTypeBuilder.init("AllType");
+        IntegerField anInt = globTypeBuilder.declareIntegerField("int");
+        IntegerArrayField intArray = globTypeBuilder.declareIntegerArrayField("intArray");
+        BooleanField aBoolean = globTypeBuilder.declareBooleanField("boolean");
+        BooleanArrayField booleanArray = globTypeBuilder.declareBooleanArrayField("booleanArray");
+        StringField string = globTypeBuilder.declareStringField("String");
+        StringArrayField stringArray = globTypeBuilder.declareStringArrayField("StringArray");
+        StringField jsonObjectString = globTypeBuilder.declareStringField("JsonObjectString", IsJsonContent.UNIQUE_GLOB);
+        StringArrayField jsonObjectStringArray = globTypeBuilder.declareStringArrayField("JsonObjectStringArray", IsJsonContent.UNIQUE_GLOB);
+        StringField jsonArrayString = globTypeBuilder.declareStringField("JsonArrayString", IsJsonContent.UNIQUE_GLOB);
+        StringArrayField jsonArrayStringArray = globTypeBuilder.declareStringArrayField("JsonArrayStringArray", IsJsonContent.UNIQUE_GLOB);
+        LongField aLong = globTypeBuilder.declareLongField("long");
+        LongArrayField longArray = globTypeBuilder.declareLongArrayField("longArray");
+        BigDecimalField bigDecimal = globTypeBuilder.declareBigDecimalField("bigDecimal");
+        BigDecimalArrayField bigDecimalArray = globTypeBuilder.declareBigDecimalArrayField("bigDecimalArray");
+        DoubleField aDouble = globTypeBuilder.declareDoubleField("double");
+        DoubleArrayField doubleArray = globTypeBuilder.declareDoubleArrayField("doubleArray");
+        DateField date = globTypeBuilder.declareDateField("date");
+        DateTimeField dateTime = globTypeBuilder.declareDateTimeField("dateTime");
+        BlobField blob = globTypeBuilder.declareBlobField("blob");
+        GlobField globField = globTypeBuilder.declareGlobField("glob", innerType);
+        GlobArrayField globArrayField = globTypeBuilder.declareGlobArrayField("globArray", innerType);
+        GlobArrayUnionField globArrayUnionField = globTypeBuilder.declareGlobUnionArrayField("globArrayUnion", List.of(innerType, innerType2));
+        GlobType globType = globTypeBuilder.get();
+
+        Gson gson = init(globType, innerType, innerType2);
+
+        //write-read globType
+        String s = gson.toJson(globType);
+        GlobType readType = gson.fromJson(s, GlobType.class);
+
+        for (Field field : globType.getFields()) {
+            Field readTypeField = readType.getField(field.getName());
+            Assert.assertTrue(readTypeField.getClass() == field.getClass());
+        }
+
+        MutableGlob instantiate = globType.instantiate();
+        instantiate
+                .set(anInt, 12)
+                .set(intArray, IntStream.range(0, 34).toArray())
+                .set(aBoolean, true)
+                .set(booleanArray, new boolean[]{true, false, true})
+                .set(string, "a string")
+                .set(stringArray, new String[]{"un", "deux", "trois"})
+                .set(jsonObjectString, "{\"arg1\":\"vale1\",\"v\":2}")
+                .set(jsonObjectStringArray, new String[]{"{\"arg1\":\"value1\",\"v\":2}", "{\"arg1\":\"value3\",\"v\":3}"})
+                .set(globArrayUnionField, new Glob[]{
+                        innerType.instantiate().set(valueField, 3).set(dateField, 17000),
+                        innerType2.instantiate().set(valueField2, 2.8).set(dateField2, 17001)})
+                .set(jsonArrayString, "[\"a\",\"b\"]")
+                .set(jsonArrayStringArray, new String[]{"[\"a\",\"b\"]", "[\"a\",\"b\"]"})
+                .set(aLong, 2L)
+                .set(longArray, LongStream.range(0, 50).toArray())
+                .set(bigDecimal, BigDecimal.valueOf(2.2))
+                .set(bigDecimalArray, new BigDecimal[]{BigDecimal.valueOf(2.2), BigDecimal.valueOf(4.2)})
+                .set(aDouble, 3.1415)
+                .set(doubleArray, new double[]{3.3, 4.4, 5.5})
+                .set(date, LocalDate.of(2018, 2, 4))
+                .set(dateTime, ZonedDateTime.of(2018, 2, 4, 15, 45, 34, 1000, ZoneId.of("Europe/Paris")))
+                .set(blob, new byte[]{3, 4})
+                .set(globField, innerType.instantiate().set(valueField, 3).set(dateField, 17000))
+                .set(globArrayField, new Glob[]{innerType.instantiate().set(valueField, 3).set(dateField, 17000),
+                        innerType.instantiate().set(valueField, 2.8).set(dateField, 17001),
+                        innerType.instantiate().set(valueField, 2.7).set(dateField, 17002)});
+
+
+        final JsonSerializerServiceImpl jsonSerializerService = new JsonSerializerServiceImpl();
+
+
+        final StringWriter writer = new StringWriter();
+        final GlobJson globJson = jsonSerializerService.get(globType);
+        globJson.write(instantiate, writer);
+        String jsonOutput = writer.toString();
+        System.out.println("GlobsGsonAdapterTest.readAllFieldType " + jsonOutput);
+
+        Glob glob = globJson.read(new StringReader(jsonOutput));
+
+        Field[] fields = globType.getFields();
+        for (Field field : fields) {
+            Assert.assertTrue(field.getName() + " : " + glob.getValue(field) + "->" + instantiate.getValue(field),
+                    field.valueEqual(glob.getValue(field), instantiate.getValue(field)));
+        }
+
+        glob = gson.fromJson(ALL_WITH_KIND_IN_THE_MIDDLE, Glob.class);
+
+        fields = globType.getFields();
+        for (Field field : fields) {
+            StringBuilder v1 = new StringBuilder();
+            field.toString(v1, glob.getValue(field));
+            StringBuilder v2 = new StringBuilder();
+            field.toString(v2, instantiate.getValue(field));
+            Assert.assertTrue(field.getName() + " : " +
+                              v1.toString() + "->" + v2.toString(),
                     field.valueEqual(glob.getValue(field), instantiate.getValue(field)));
         }
     }

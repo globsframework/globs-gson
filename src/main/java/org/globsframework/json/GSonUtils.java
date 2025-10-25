@@ -11,10 +11,7 @@ import org.globsframework.core.metamodel.GlobTypeResolver;
 import org.globsframework.core.metamodel.fields.DateField;
 import org.globsframework.core.metamodel.fields.DateTimeField;
 import org.globsframework.core.metamodel.fields.Field;
-import org.globsframework.core.model.FieldSetter;
-import org.globsframework.core.model.FieldValues;
-import org.globsframework.core.model.Glob;
-import org.globsframework.core.model.Key;
+import org.globsframework.core.model.*;
 import org.globsframework.core.utils.Strings;
 import org.globsframework.json.annottations.JsonDateFormat;
 import org.globsframework.json.annottations.JsonDateTimeFormat;
@@ -34,8 +31,14 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
-public class GSonUtils {
 
+
+/*
+  GsonUtils do not manage Custom serialization/deserialization via ToStringFieldJsonSerializer
+  Use GlobJsonService for this.
+ */
+
+public class GSonUtils {
     public static Map<String, DateTimeFormatter> CACHE_DATE = new ConcurrentHashMap<>();
     public static Map<Field, FormaterForDateTime> CACHE_DATE_TIME = new ConcurrentHashMap<>();
 
@@ -56,7 +59,7 @@ public class GSonUtils {
         return glob;
     }
 
-    public static void decode(Reader reader, GlobType globType, FieldSetter fieldSetter) {
+    public static void decode(Reader reader, GlobType globType, FieldSetter<?> fieldSetter) {
         try {
             JsonReader in = new JsonReader(reader);
             in.beginObject();
