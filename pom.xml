@@ -6,7 +6,7 @@
     <packaging>jar</packaging>
     <artifactId>globs-gson</artifactId>
     <name>Generic Lightweight ObjectS gson</name>
-    <version>4.3-SNAPSHOT</version>
+    <version>4.3.0</version>
 
     <developers>
         <developer>
@@ -37,7 +37,7 @@
         <connection>scm:git:git@github.com:globsframework/globs-gson</connection>
         <developerConnection>scm:git:git@github.com:globsframework/globs-gson</developerConnection>
         <url>https://github.com/globsframework/globs-gson</url>
-      <tag>HEAD</tag>
+      <tag>4.3.0</tag>
   </scm>
 
     <profiles>
