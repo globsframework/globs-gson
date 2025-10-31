@@ -10,6 +10,7 @@ import org.globsframework.core.model.Glob;
 import org.globsframework.core.model.MutableGlob;
 import org.globsframework.json.annottations.JsonAsObject_;
 import org.globsframework.json.annottations.JsonValueAsField_;
+import org.globsframework.json.field.JsonSerializerServiceImpl;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -35,13 +36,15 @@ public class ComplexJsonTest {
         final GlobJson globJson = jsonSerializerService.get(A.TYPE);
         {
             encode = GSonUtils.encode(a, true);
-            Assert.assertEquals("{\"_kind\":\"A\",\"a\":\"a\",\"b\":{\"b1\":{\"otherField\":\"o1\"},\"b2\":{\"otherField\":\"o2\"}}}", encode);
+            Assert.assertEquals("""
+                    {"_kind":"A","a":"a","b":{"b1":{"otherField":"o1"},"b2":{"otherField":"o2"}}}""", encode);
         }
         {
             final StringWriter writer = new StringWriter();
             globJson.write(a, writer, true);
             encode = writer.toString();
-            Assert.assertEquals("{\"_kind\":\"A\",\"a\":\"a\",\"b\":{\"b1\":{\"otherField\":\"o1\"},\"b2\":{\"otherField\":\"o2\"}}}", encode);
+            Assert.assertEquals("""
+                    {"_kind":"A","a":"a","b":{"b1":{"otherField":"o1"},"b2":{"otherField":"o2"}}}""", encode);
         }
         {
             Glob newA = GSonUtils.decode(encode, A.TYPE);

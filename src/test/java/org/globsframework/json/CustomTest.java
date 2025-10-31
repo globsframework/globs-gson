@@ -7,7 +7,7 @@ import org.globsframework.core.metamodel.fields.StringField;
 import org.globsframework.core.model.Glob;
 import org.globsframework.core.model.MutableGlob;
 import org.globsframework.json.annottations.JsonHideValue;
-import org.globsframework.json.annottations.JsonHideValue_;
+import org.globsframework.json.field.JsonSerializerServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -4,7 +4,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
 import org.globsframework.core.metamodel.GlobType;
 import org.globsframework.core.metamodel.fields.*;
 import org.globsframework.core.model.Glob;
@@ -55,7 +54,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
         if (registered != null) {
             jsonFieldSerializers[field.getIndex()] = new JsonFieldSerializer() {
                 @Override
-                public void write(Glob data, JsonWriter jsonWriter) throws IOException {
+                public void write(Glob data, org.globsframework.json.field.JsonWriter jsonWriter) throws IOException {
                     if (data.isSet(field)) {
                         jsonWriter.name(field.getName());
                         jsonWriter.value(registered.serialize(data));
@@ -297,7 +296,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
         }
 
         @Override
-        public void write(Glob data, JsonWriter jsonWriter) throws IOException {
+        public void write(Glob data, org.globsframework.json.field.JsonWriter jsonWriter) throws IOException {
             final Integer value = getAccessor.get(data);
             if (value != null) {
                 jsonWriter.name(field.getName());
@@ -333,7 +332,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
         }
 
         @Override
-        public void write(Glob data, JsonWriter jsonWriter) throws IOException {
+        public void write(Glob data, org.globsframework.json.field.JsonWriter jsonWriter) throws IOException {
             final int[] value = getAccessor.get(data);
             if (value != null) {
                 jsonWriter.name(field.getName());
@@ -385,7 +384,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
         }
 
         @Override
-        public void write(Glob data, JsonWriter jsonWriter) throws IOException {
+        public void write(Glob data, org.globsframework.json.field.JsonWriter jsonWriter) throws IOException {
             final Double value = getAccessor.get(data);
             if (value != null) {
                 jsonWriter.name(name);
@@ -409,7 +408,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
         }
 
         @Override
-        public void write(Glob data, JsonWriter jsonWriter) throws IOException {
+        public void write(Glob data, org.globsframework.json.field.JsonWriter jsonWriter) throws IOException {
             final Long value = getAccessor.get(data);
             if (value != null) {
                 jsonWriter.name(field.getName());
@@ -467,7 +466,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
         }
 
         @Override
-        public void write(Glob data, JsonWriter jsonWriter) throws IOException {
+        public void write(Glob data, org.globsframework.json.field.JsonWriter jsonWriter) throws IOException {
             final boolean[] value = getAccessor.get(data);
             if (value != null) {
                 jsonWriter.name(field.getName());
@@ -506,7 +505,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
         }
 
         @Override
-        public void write(Glob data, JsonWriter jsonWriter) throws IOException {
+        public void write(Glob data, org.globsframework.json.field.JsonWriter jsonWriter) throws IOException {
             final Boolean value = getAccessor.get(data);
             if (value != null) {
                 jsonWriter.name(field.getName());
@@ -571,7 +570,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
         }
 
         @Override
-        public void write(Glob data, JsonWriter jsonWriter) throws IOException {
+        public void write(Glob data, org.globsframework.json.field.JsonWriter jsonWriter) throws IOException {
             final String[] value = getAccessor.get(data);
             if (value != null) {
                 jsonWriter.name(field.getName());
@@ -650,7 +649,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
         }
 
         @Override
-        public void write(Glob data, JsonWriter jsonWriter) throws IOException {
+        public void write(Glob data, org.globsframework.json.field.JsonWriter jsonWriter) throws IOException {
             final String value = getAccessor.get(data);
             if (value != null) {
                 jsonWriter.name(field.getName());
@@ -673,7 +672,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
         }
 
         @Override
-        public void write(Glob data, JsonWriter jsonWriter) throws IOException {
+        public void write(Glob data, org.globsframework.json.field.JsonWriter jsonWriter) throws IOException {
             final String value = getAccessor.get(data);
             if (value != null) {
                 jsonWriter.name(field.getName());
@@ -696,7 +695,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
         }
 
         @Override
-        public void write(Glob data, JsonWriter jsonWriter) throws IOException {
+        public void write(Glob data, org.globsframework.json.field.JsonWriter jsonWriter) throws IOException {
             final String value = getAccessor.get(data);
             if (value != null) {
                 jsonWriter.name(field.getName());
@@ -756,7 +755,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
         }
 
         @Override
-        public void write(Glob data, JsonWriter jsonWriter) throws IOException {
+        public void write(Glob data, org.globsframework.json.field.JsonWriter jsonWriter) throws IOException {
             final Glob[] value = getAccessor.get(data);
             if (value != null) {
                 jsonWriter.name(field.getName());
@@ -823,7 +822,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
         }
 
         @Override
-        public void write(Glob data, JsonWriter jsonWriter) throws IOException {
+        public void write(Glob data, org.globsframework.json.field.JsonWriter jsonWriter) throws IOException {
             final Glob[] value = getAccessor.get(data);
             if (value != null) {
                 jsonWriter.name(field.getName());
@@ -879,7 +878,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
         }
 
         @Override
-        public void write(Glob data, JsonWriter jsonWriter) throws IOException {
+        public void write(Glob data, org.globsframework.json.field.JsonWriter jsonWriter) throws IOException {
             final Glob value = getAccessor.get(data);
             if (value != null) {
                 jsonWriter.name(field.getName());
@@ -917,7 +916,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
         }
 
         @Override
-        public void write(Glob data, JsonWriter jsonWriter) throws IOException {
+        public void write(Glob data, org.globsframework.json.field.JsonWriter jsonWriter) throws IOException {
             final byte[] value = getAccessor.get(data);
             if (value != null) {
                 jsonWriter.name(field.getName());
@@ -941,7 +940,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
         }
 
         @Override
-        public void write(Glob data, JsonWriter jsonWriter) throws IOException {
+        public void write(Glob data, org.globsframework.json.field.JsonWriter jsonWriter) throws IOException {
             final ZonedDateTime value = getAccessor.get(data);
             if (value != null) {
                 jsonWriter.name(field.getName());
@@ -995,7 +994,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
         }
 
         @Override
-        public void write(Glob data, JsonWriter jsonWriter) throws IOException {
+        public void write(Glob data, org.globsframework.json.field.JsonWriter jsonWriter) throws IOException {
             final LocalDate value = getAccessor.get(data);
             if (value != null) {
                 jsonWriter.name(field.getName());
@@ -1040,7 +1039,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
         }
 
         @Override
-        public void write(Glob data, JsonWriter jsonWriter) throws IOException {
+        public void write(Glob data, org.globsframework.json.field.JsonWriter jsonWriter) throws IOException {
             final long[] value = getAccessor.get(data);
             if (value != null) {
                 jsonWriter.name(field.getName());
@@ -1089,7 +1088,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
         }
 
         @Override
-        public void write(Glob data, JsonWriter jsonWriter) throws IOException {
+        public void write(Glob data, org.globsframework.json.field.JsonWriter jsonWriter) throws IOException {
             final BigDecimal[] value = getAccessor.get(data);
             if (value != null) {
                 jsonWriter.name(field.getName());
@@ -1116,7 +1115,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
         }
 
         @Override
-        public void write(Glob data, JsonWriter jsonWriter) throws IOException {
+        public void write(Glob data, org.globsframework.json.field.JsonWriter jsonWriter) throws IOException {
             final BigDecimal value = getAccessor.get(data);
             if (value != null) {
                 jsonWriter.name(field.getName());
@@ -1174,7 +1173,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
         }
 
         @Override
-        public void write(Glob data, JsonWriter jsonWriter) throws IOException {
+        public void write(Glob data, org.globsframework.json.field.JsonWriter jsonWriter) throws IOException {
             final double[] value = getAccessor.get(data);
             if (value != null) {
                 jsonWriter.name(field.getName());
@@ -1243,7 +1242,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
         }
 
         @Override
-        public void write(Glob data, JsonWriter jsonWriter) throws IOException {
+        public void write(Glob data, org.globsframework.json.field.JsonWriter jsonWriter) throws IOException {
             final Glob[] value = getAccessor.get(data);
             if (value != null) {
                 jsonWriter.name(field.getName());

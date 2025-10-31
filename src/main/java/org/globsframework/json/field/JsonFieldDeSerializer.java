@@ -1,4 +1,4 @@
-package org.globsframework.json;
+package org.globsframework.json.field;
 
 import com.google.gson.stream.JsonReader;
 import org.globsframework.core.model.MutableGlob;

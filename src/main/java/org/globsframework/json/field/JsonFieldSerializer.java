@@ -1,6 +1,5 @@
-package org.globsframework.json;
+package org.globsframework.json.field;
 
-import com.google.gson.stream.JsonWriter;
 import org.globsframework.core.model.Glob;
 
 import java.io.IOException;
