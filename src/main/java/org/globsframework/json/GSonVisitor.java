@@ -138,8 +138,8 @@ public abstract class GSonVisitor implements FieldVisitorWithTwoContext<JsonElem
         fieldSetter.set(field, ZonedDateTime.from(DateTimeFormatter.ISO_DATE_TIME.parse(element.getAsString())));
     }
 
-    public void visitBlob(BlobField blobField, JsonElement element, FieldSetter fieldSetter) {
-        fieldSetter.set(blobField,
+    public void visitBytes(BytesField BytesField, JsonElement element, FieldSetter fieldSetter) {
+        fieldSetter.set(BytesField,
                 Base64.getDecoder().decode(element.getAsString()));
     }
 

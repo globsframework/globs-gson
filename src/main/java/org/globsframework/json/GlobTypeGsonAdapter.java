@@ -112,8 +112,8 @@ class GlobTypeGsonAdapter extends TypeAdapter<GlobType> {
                     }
 
 
-                    public void visitBlob(BlobField field) throws Exception {
-                        writeField(field, GlobsGson.BLOB_TYPE, out);
+                    public void visitBytes(BytesField field) throws Exception {
+                        writeField(field, GlobsGson.BYTES_TYPE, out);
                     }
 
 

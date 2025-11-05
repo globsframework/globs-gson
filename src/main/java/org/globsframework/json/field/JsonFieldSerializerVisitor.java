@@ -215,7 +215,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
         jsonFieldDeSerializers[field.getIndex()] = new DateTimeJsonFieldDeSerializer(setAccessor, formattedDateTime);
     }
 
-    public void visitBlob(BlobField field) throws Exception {
+    public void visitBytes(BytesField field) throws Exception {
         if (specific(field)) {
             return;
         }
@@ -908,9 +908,9 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
 
     private static class BytesJsonFieldSerializer implements JsonFieldSerializer {
         private final GlobGetBytesAccessor getAccessor;
-        private final BlobField field;
+        private final BytesField field;
 
-        public BytesJsonFieldSerializer(GlobGetBytesAccessor getAccessor, BlobField field) {
+        public BytesJsonFieldSerializer(GlobGetBytesAccessor getAccessor, BytesField field) {
             this.getAccessor = getAccessor;
             this.field = field;
         }

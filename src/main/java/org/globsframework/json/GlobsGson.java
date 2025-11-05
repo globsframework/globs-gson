@@ -29,7 +29,7 @@ public class GlobsGson {
     public static final String DATE_TIME_TYPE = "dateTime";
     public static final String BIG_DECIMAL_TYPE = "bigDecimal";
     public static final String BIG_DECIMAL_ARRAY_TYPE = "bigDecimalArray";
-    public static final String BLOB_TYPE = "blob";
+    public static final String BYTES_TYPE = "bytes";
     public static final String GLOB_TYPE = "glob";
     public static final String GLOB_ARRAY_TYPE = "globArray";
     public static final String GLOB_TYPE_KIND = "kind";

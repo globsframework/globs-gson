@@ -394,7 +394,7 @@ public class GlobsGsonAdapterTest {
             "  ],\n" +
             "  \"date\": \"2018-02-04\",\n" +
             "  \"dateTime\": \"2018-02-04T15:45:34.000001+01:00[Europe/Paris]\",\n" +
-            "  \"blob\": \"AwQ\\u003d\"\n," +
+            "  \"bytes\": \"AwQ\\u003d\"\n," +
             "  \"glob\":{\"value\":3.0,\"date\":17000}," +
             "  \"globArray\":[{\"value\":3.0,\"date\":17000},{\"value\":2.8,\"date\":17001},{\"value\":2.7,\"date\":17002}]," +
             "  \"globArrayUnion\": [\n" +
@@ -444,7 +444,7 @@ public class GlobsGsonAdapterTest {
         DoubleArrayField doubleArray = globTypeBuilder.declareDoubleArrayField("doubleArray");
         DateField date = globTypeBuilder.declareDateField("date");
         DateTimeField dateTime = globTypeBuilder.declareDateTimeField("dateTime");
-        BlobField blob = globTypeBuilder.declareBlobField("blob");
+        BytesField Bytes = globTypeBuilder.declareBytesField("bytes");
         GlobField globField = globTypeBuilder.declareGlobField("glob", innerType);
         GlobArrayField globArrayField = globTypeBuilder.declareGlobArrayField("globArray", innerType);
         GlobArrayUnionField globArrayUnionField = globTypeBuilder.declareGlobUnionArrayField("globArrayUnion", List.of(innerType, innerType2));
@@ -484,7 +484,7 @@ public class GlobsGsonAdapterTest {
                 .set(doubleArray, new double[]{3.3, 4.4, 5.5})
                 .set(date, LocalDate.of(2018, 2, 4))
                 .set(dateTime, ZonedDateTime.of(2018, 2, 4, 15, 45, 34, 1000, ZoneId.of("Europe/Paris")))
-                .set(blob, new byte[]{3, 4})
+                .set(Bytes, new byte[]{3, 4})
                 .set(globField, innerType.instantiate().set(valueField, 3).set(dateField, 17000))
                 .set(globArrayField, new Glob[]{innerType.instantiate().set(valueField, 3).set(dateField, 17000),
                         innerType.instantiate().set(valueField, 2.8).set(dateField, 17001),
@@ -514,6 +514,7 @@ public class GlobsGsonAdapterTest {
                     field.valueEqual(glob.getValue(field), instantiate.getValue(field)));
         }
     }
+
     @Test
     public void readAllFieldUsingGlobJson() throws IOException {
         GlobTypeBuilder innerGlobTypeBuilder = DefaultGlobTypeBuilder.init("histo");
@@ -545,7 +546,7 @@ public class GlobsGsonAdapterTest {
         DoubleArrayField doubleArray = globTypeBuilder.declareDoubleArrayField("doubleArray");
         DateField date = globTypeBuilder.declareDateField("date");
         DateTimeField dateTime = globTypeBuilder.declareDateTimeField("dateTime");
-        BlobField blob = globTypeBuilder.declareBlobField("blob");
+        BytesField Bytes = globTypeBuilder.declareBytesField("bytes");
         GlobField globField = globTypeBuilder.declareGlobField("glob", innerType);
         GlobArrayField globArrayField = globTypeBuilder.declareGlobArrayField("globArray", innerType);
         GlobArrayUnionField globArrayUnionField = globTypeBuilder.declareGlobUnionArrayField("globArrayUnion", List.of(innerType, innerType2));
@@ -585,7 +586,7 @@ public class GlobsGsonAdapterTest {
                 .set(doubleArray, new double[]{3.3, 4.4, 5.5})
                 .set(date, LocalDate.of(2018, 2, 4))
                 .set(dateTime, ZonedDateTime.of(2018, 2, 4, 15, 45, 34, 1000, ZoneId.of("Europe/Paris")))
-                .set(blob, new byte[]{3, 4})
+                .set(Bytes, new byte[]{3, 4})
                 .set(globField, innerType.instantiate().set(valueField, 3).set(dateField, 17000))
                 .set(globArrayField, new Glob[]{innerType.instantiate().set(valueField, 3).set(dateField, 17000),
                         innerType.instantiate().set(valueField, 2.8).set(dateField, 17001),

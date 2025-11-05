@@ -157,7 +157,7 @@ public class JsonFieldValueVisitor implements FieldValueVisitor {
         }
     }
 
-    public void visitBlob(BlobField field, byte[] value) throws Exception {
+    public void visitBytes(BytesField field, byte[] value) throws Exception {
         jsonWriter.name(field.getName());
         if (value != null) {
             jsonWriter.value(Base64.getEncoder().encodeToString(value));

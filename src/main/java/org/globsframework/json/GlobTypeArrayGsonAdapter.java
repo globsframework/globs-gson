@@ -103,8 +103,8 @@ class GlobTypeArrayGsonAdapter extends TypeAdapter<GlobType> {
                         writeField(field, GlobsGson.DATE_TIME_TYPE, out);
                     }
 
-                    public void visitBlob(BlobField field) throws Exception {
-                        writeField(field, GlobsGson.BLOB_TYPE, out);
+                    public void visitBytes(BytesField field) throws Exception {
+                        writeField(field, GlobsGson.BYTES_TYPE, out);
                     }
 
                     public void visitGlob(GlobField field) throws Exception {

@@ -122,8 +122,8 @@ class GlobTypeGsonDeserializer {
             case GlobsGson.DATE_TIME_TYPE:
                 globTypeBuilder.declareDateTimeField(attrName, globList);
                 break;
-            case GlobsGson.BLOB_TYPE:
-                globTypeBuilder.declareBlobField(attrName, globList);
+            case GlobsGson.BYTES_TYPE:
+                globTypeBuilder.declareBytesField(attrName, globList);
                 break;
             case GlobsGson.GLOB_TYPE:
                 globTypeBuilder.declareGlobField(attrName, globTypeResolver.getType(fieldContent.get(GlobsGson.GLOB_TYPE_KIND).getAsString()), globList);

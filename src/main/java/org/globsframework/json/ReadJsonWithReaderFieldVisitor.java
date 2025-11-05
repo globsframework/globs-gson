@@ -192,7 +192,7 @@ public class ReadJsonWithReaderFieldVisitor implements FieldVisitorWithTwoContex
         mutableGlob.set(field, dateConverter.parse(text));
     }
 
-    public void visitBlob(BlobField field, FieldSetter mutableGlob, JsonReader jsonReader) throws Exception {
+    public void visitBytes(BytesField field, FieldSetter mutableGlob, JsonReader jsonReader) throws Exception {
         mutableGlob.set(field, Base64.getDecoder().decode(jsonReader.nextString()));
     }
 
