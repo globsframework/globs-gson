@@ -138,7 +138,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
             jsonFieldDeSerializers[field.getIndex()] = new JsonStringJsonFieldDeSerializer(field, setAccessor);
         } else {
             jsonFieldSerializers[field.getIndex()] = new StringJsonFieldSerializer(getAccessor, field);
-            jsonFieldDeSerializers[field.getIndex()] = new StringJsonFieldDeSerializer(field, setAccessor);
+            jsonFieldDeSerializers[field.getIndex()] = new StringJsonFieldDeSerializer(setAccessor);
         }
     }
 
@@ -592,11 +592,9 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
     }
 
     private static class StringJsonFieldDeSerializer implements JsonFieldDeSerializer {
-        private final StringField field;
         private final GlobSetStringAccessor setAccessor;
 
-        public StringJsonFieldDeSerializer(StringField field, GlobSetStringAccessor setAccessor) {
-            this.field = field;
+        public StringJsonFieldDeSerializer(GlobSetStringAccessor setAccessor) {
             this.setAccessor = setAccessor;
         }
 
@@ -606,10 +604,10 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
             switch (jsonToken) {
                 case STRING:
                 case NUMBER:
-                    mutableGlob.set(field, jsonReader.nextString());
+                    setAccessor.set(mutableGlob, jsonReader.nextString());
                     break;
                 case BOOLEAN:
-                    mutableGlob.set(field, Boolean.toString(jsonReader.nextBoolean()));
+                    setAccessor.set(mutableGlob, Boolean.toString(jsonReader.nextBoolean()));
                     break;
             }
         }
@@ -628,11 +626,11 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
         public void deserialize(JsonReader jsonReader, MutableGlob mutableGlob) throws IOException {
             JsonElement parse = JsonParser.parseReader(jsonReader);
             if (parse.isJsonArray()) {
-                mutableGlob.set(field, GlobGSonDeserializer.GSON.toJson(parse.getAsJsonArray()));
+                setAccessor.set(mutableGlob, GlobGSonDeserializer.GSON.toJson(parse.getAsJsonArray()));
             } else if (parse.isJsonObject()) {
-                mutableGlob.set(field, GlobGSonDeserializer.GSON.toJson(parse.getAsJsonObject()));
+                setAccessor.set(mutableGlob, GlobGSonDeserializer.GSON.toJson(parse.getAsJsonObject()));
             } else if (parse.isJsonPrimitive()) {
-                mutableGlob.set(field, GlobGSonDeserializer.GSON.toJson(parse.getAsJsonPrimitive()));
+                setAccessor.set(mutableGlob,  GlobGSonDeserializer.GSON.toJson(parse.getAsJsonPrimitive()));
             } else {
                 throw new RuntimeException(parse.toString() + " not managed in " + field.getFullName());
             }
@@ -735,6 +733,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
                 jsonReader.endObject();
                 objs.add(newObj);
             }
+            jsonReader.endObject();
             setAccessor.set(mutableGlob, objs.toArray(Glob[]::new));
         }
     }

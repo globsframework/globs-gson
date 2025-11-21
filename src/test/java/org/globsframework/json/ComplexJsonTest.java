@@ -54,6 +54,16 @@ public class ComplexJsonTest {
             Glob newA = globJson.read(new StringReader(encode));
             check(newA);
         }
+        {
+            final StringWriter writer = new StringWriter();
+            globJson.write(new Glob[]{a, null, a}, writer, true);
+            encode = writer.toString();
+            Assert.assertEquals("""
+                    [{"_kind":"A","a":"a","b":{"b1":{"otherField":"o1"},"b2":{"otherField":"o2"}}},null,{"_kind":"A","a":"a","b":{"b1":{"otherField":"o1"},"b2":{"otherField":"o2"}}}]""", encode);
+            final StringWriter secondWrite = new StringWriter();
+            globJson.write(globJson.readArray(new StringReader(encode)), secondWrite, true);
+            Assert.assertEquals(encode, secondWrite.toString());
+        }
     }
 
     private static void check(Glob newA) {

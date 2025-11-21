@@ -13,6 +13,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class GlobJsonImpl implements GlobJson {
@@ -26,7 +27,6 @@ public class GlobJsonImpl implements GlobJson {
         this.jsonFieldDeSerializer = jsonFieldDeSerializer;
     }
 
-    @Override
     public void write(Glob data, Writer writer) throws IOException {
         if (data != null && data.getType() != globType) {
             throw new IllegalArgumentException("Invalid glob type, expected " + globType.getName() + " but got " + data.getType().getName());
@@ -34,50 +34,66 @@ public class GlobJsonImpl implements GlobJson {
         GoogleJson jsonWriter = new GoogleJson(new com.google.gson.stream.JsonWriter(writer));
         if (data == null) {
             jsonWriter.nullValue();
-        }else {
+        } else {
             jsonWriter.beginObject();
             jsonFieldSerializer.write(data, jsonWriter);
             jsonWriter.endObject();
-            jsonWriter.close();
         }
     }
 
-    @Override
     public void write(Glob data, Writer writer, boolean withKind) throws IOException {
         if (data != null && data.getType() != globType) {
             throw new IllegalArgumentException("Invalid glob type, expected " + globType.getName() + " but got " + data.getType().getName());
         }
         GoogleJson jsonWriter = new GoogleJson(new com.google.gson.stream.JsonWriter(writer));
-        if (data == null) {
-            jsonWriter.nullValue();
-        }
-        else {
-            jsonWriter.beginObject();
-            if (withKind) {
-                jsonWriter.name(GlobsGson.KIND_NAME);
-                jsonWriter.value(data.getType().getName());
-            }
-            jsonFieldSerializer.write(data, jsonWriter);
-            jsonWriter.endObject();
-            jsonWriter.close();
-        }
+        writeGlob(withKind, data, jsonWriter);
     }
 
-    @Override
-    public void writeArray(Glob[] data, Writer writer) throws IOException {
+    public void write(Collection<Glob> data, Writer writer) throws IOException {
         GoogleJson jsonWriter = new GoogleJson(new com.google.gson.stream.JsonWriter(writer));
         jsonWriter.beginArray();
         for (Glob d : data) {
             if (d != null && d.getType() != globType) {
                 throw new IllegalArgumentException("Invalid glob type, expected " + globType.getName() + " but got " + d.getType().getName());
             }
-            jsonFieldSerializer.write(d, jsonWriter);
+            if (d == null) {
+                jsonWriter.nullValue();
+            } else {
+                jsonWriter.beginObject();
+                jsonFieldSerializer.write(d, jsonWriter);
+                jsonWriter.endObject();
+            }
         }
         jsonWriter.endArray();
-        jsonWriter.close();
     }
 
     @Override
+    public void write(Collection<Glob> data, Writer writer, boolean withKind) throws IOException {
+        GoogleJson jsonWriter = new GoogleJson(new com.google.gson.stream.JsonWriter(writer));
+        jsonWriter.beginArray();
+        for (Glob d : data) {
+            if (d != null && d.getType() != globType) {
+                throw new IllegalArgumentException("Invalid glob type, expected " + globType.getName() + " but got " + d.getType().getName());
+            }
+            writeGlob(withKind, d, jsonWriter);
+        }
+        jsonWriter.endArray();
+    }
+
+    private void writeGlob(boolean withKind, Glob d, GoogleJson jsonWriter) throws IOException {
+        if (d == null) {
+            jsonWriter.nullValue();
+        } else {
+            jsonWriter.beginObject();
+            if (withKind) {
+                jsonWriter.name(GlobsGson.KIND_NAME);
+                jsonWriter.value(d.getType().getName());
+            }
+            jsonFieldSerializer.write(d, jsonWriter);
+            jsonWriter.endObject();
+        }
+    }
+
     public Glob read(Reader reader) throws IOException {
         final JsonReader jsonReader = new JsonReader(reader);
         if (jsonReader.peek() == JsonToken.NULL) {
@@ -92,7 +108,6 @@ public class GlobJsonImpl implements GlobJson {
         }
     }
 
-    @Override
     public Glob[] readArray(Reader reader) throws IOException {
         List<Glob> globs = new ArrayList<>();
         final JsonReader jsonReader = new JsonReader(reader);
@@ -101,7 +116,7 @@ public class GlobJsonImpl implements GlobJson {
             if (jsonReader.peek() == JsonToken.NULL) {
                 jsonReader.nextNull();
                 globs.add(null);
-            }else {
+            } else {
                 final MutableGlob instantiate = globType.instantiate();
                 jsonReader.beginObject();
                 jsonFieldDeSerializer.deserialize(jsonReader, instantiate);
@@ -119,71 +134,52 @@ public class GlobJsonImpl implements GlobJson {
             this.jsonWriter = jsonWriter;
         }
 
-        @Override
         public void name(String name) throws IOException {
             jsonWriter.name(name);
         }
 
-        @Override
         public void beginObject() throws IOException {
             jsonWriter.beginObject();
         }
 
-        @Override
         public void endObject() throws IOException {
             jsonWriter.endObject();
         }
 
-        @Override
         public void nullValue() throws IOException {
             jsonWriter.nullValue();
         }
 
-        @Override
         public void beginArray() throws IOException {
             jsonWriter.beginArray();
         }
 
-        @Override
         public void endArray() throws IOException {
             jsonWriter.endArray();
         }
 
-        @Override
         public void value(long value) throws IOException {
             jsonWriter.value(value);
         }
 
-        @Override
         public void value(String value) throws IOException {
             jsonWriter.value(value);
         }
 
-        @Override
         public void value(boolean value) throws IOException {
             jsonWriter.value(value);
-
         }
 
-        @Override
         public void value(double value) throws IOException {
             jsonWriter.value(value);
-
         }
 
-        @Override
         public void value(BigDecimal value) throws IOException {
             jsonWriter.value(value);
-
         }
 
-        @Override
         public void jsonValue(String value) throws IOException {
             jsonWriter.jsonValue(value);
-        }
-
-        public void close() throws IOException {
-            jsonWriter.close();
         }
     }
 }

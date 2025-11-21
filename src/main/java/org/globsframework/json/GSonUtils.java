@@ -24,10 +24,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
@@ -149,11 +146,7 @@ public class GSonUtils {
         return stringBuilder.toString();
     }
 
-    public static String encodeWithKind(Glob glob) {
-        return encode(glob, true);
-    }
-
-    public static String encodeWithoutKind(Glob glob) {
+    public static String encode(Glob glob) {
         return encode(glob, false);
     }
 
@@ -171,11 +164,19 @@ public class GSonUtils {
         return stringBuilder.toString();
     }
 
+    public static String encode(Key key) {
+        return encode(key, false);
+    }
+
     public static String encode(Key key, boolean withKind) {
         StringBuilder stringBuilder = new StringBuilder();
         Writer out = new StringWriterToBuilder(stringBuilder);
         encode(out, key, withKind, false);
         return stringBuilder.toString();
+    }
+
+    public static String niceEncode(Glob glob) {
+        return niceEncode(glob, false);
     }
 
     public static String niceEncode(Glob glob, boolean withKind) {
@@ -206,8 +207,16 @@ public class GSonUtils {
         return globTypeSet.globType.length == 0 ? Optional.empty() : Optional.of(globTypeSet.globType[0]);
     }
 
+    public static void encode(Writer out, Glob glob) {
+        encode(out, glob, false, false, false);
+    }
+
     public static void encode(Writer out, Glob glob, boolean withKind) {
         encode(out, glob, withKind, false, false);
+    }
+
+    public static void encode(StringBuilder out, Glob glob) {
+        encode(out, glob, false);
     }
 
     public static void encode(StringBuilder out, Glob glob, boolean withKind) {
@@ -435,6 +444,10 @@ public class GSonUtils {
     }
 
     public static void encode(Writer writer, Glob[] glob, boolean withKind, boolean hideSensitiveData) {
+        encode(writer, Arrays.asList(glob), withKind, hideSensitiveData);
+    }
+
+    public static void encode(Writer writer, Collection<Glob> glob, boolean withKind, boolean hideSensitiveData) {
         try {
             JsonWriter jsonWriter = new JsonWriter(writer);
 

@@ -83,7 +83,7 @@ public class JsonSerializerServiceImpl implements GlobJsonService {
                                 subDeSerializers[simpleField.getIndex()]));
 
                 serializerMap.put(globType,
-                        new GlobJsonWithFlattenFieldSerializer(serializers, fieldTargetArray, targetField,
+                        new GlobJsonWithFlattenFieldSerializer(fieldTargetArray, targetField,
                                 new JsonFieldSerializer() {
                                     @Override
                                     public void write(Glob data, JsonWriter jsonWriter) throws IOException {
@@ -105,7 +105,7 @@ public class JsonSerializerServiceImpl implements GlobJsonService {
                                 }));
                 final JsonFieldSerializer serializer = getSerializer(targetType);
                 serializerMap.put(globType,
-                        new GlobJsonWithFlattenFieldSerializer(serializers, fieldTargetArray, targetField,
+                        new GlobJsonWithFlattenFieldSerializer(fieldTargetArray, targetField,
                                 new JsonFieldSerializer() {
                                     @Override
                                     public void write(Glob data, JsonWriter jsonWriter) throws IOException {
@@ -188,18 +188,13 @@ public class JsonSerializerServiceImpl implements GlobJsonService {
     }
 
     private static class GlobJsonWithFlattenFieldSerializer implements JsonFieldSerializer {
-        private final JsonFieldSerializer[] serializers;
-        private final GlobType subType;
         private final GlobArrayField arrayField;
         private final StringField flattenFieldAttribute;
         private final JsonFieldSerializer flattenGlobSerializer;
 
-        public GlobJsonWithFlattenFieldSerializer(JsonFieldSerializer[] serializers,
-                                                  GlobArrayField arrayField, StringField flattenFieldAttribute,
+        public GlobJsonWithFlattenFieldSerializer(GlobArrayField arrayField, StringField flattenFieldAttribute,
                                                   JsonFieldSerializer flattenGlobSerializer) {
-            this.serializers = serializers;
             this.arrayField = arrayField;
-            subType = arrayField.getTargetType();
             this.flattenFieldAttribute = flattenFieldAttribute;
             this.flattenGlobSerializer = flattenGlobSerializer;
         }
