@@ -6,7 +6,7 @@ import junit.framework.Assert;
 import org.globsframework.core.metamodel.GlobType;
 import org.globsframework.core.metamodel.GlobTypeBuilder;
 import org.globsframework.core.metamodel.GlobTypeBuilderFactory;
-import org.globsframework.core.metamodel.GlobTypeLoaderFactory;
+import org.globsframework.core.metamodel.annotations.KeyField;
 import org.globsframework.core.metamodel.annotations.KeyField_;
 import org.globsframework.core.metamodel.fields.StringField;
 import org.globsframework.core.model.KeyBuilder;
@@ -51,27 +51,30 @@ public class UnknownAnnotationTest {
     }
 
     public static class TypeToTest {
-        public static GlobType TYPE;
+        public static final GlobType TYPE;
 
-        public static StringField F1;
+        public static final StringField F1;
 
         static {
-            GlobTypeBuilder typeBuilder = GlobTypeBuilderFactory.create("typeToTest");
-            F1 = typeBuilder.declareStringField("f1", Ann1.TYPE.instantiate().set(Ann1.UUID, "XXX").set(Ann1.SOME_DATA, "aa"));
-            TYPE = typeBuilder.get();
+            GlobTypeBuilder globTypeBuilder = GlobTypeBuilderFactory.create("typeToTest");
+            F1 = globTypeBuilder.declareStringField("f1", Ann1.TYPE.instantiate().set(Ann1.UUID, "XXX").set(Ann1.SOME_DATA, "aa"));
+            TYPE = globTypeBuilder.build();
         }
     }
 
     public static class Ann1 {
-        public static GlobType TYPE;
+        public static final GlobType TYPE;
 
         @KeyField_
-        public static StringField UUID;
+        public static final StringField UUID;
 
-        public static StringField SOME_DATA;
+        public static final StringField SOME_DATA;
 
         static {
-            GlobTypeLoaderFactory.create(Ann1.class).load();
+            GlobTypeBuilder typeBuilder = GlobTypeBuilderFactory.create("ann1");
+            UUID = typeBuilder.declareStringField("uuid", KeyField.ZERO);
+            SOME_DATA = typeBuilder.declareStringField("someData");
+            TYPE = typeBuilder.build();
         }
     }
 }

@@ -28,7 +28,10 @@ class GlobTypeArrayGsonAdapter extends TypeAdapter<GlobType> {
     public GlobTypeArrayGsonAdapter(boolean forceSort, GlobTypeResolver globTypeResolver, boolean ignoreUnknownAnnotation) {
         this.forceSort = forceSort;
         this.globTypeResolver = globTypeResolver;
-        this.globTypeGsonDeserializer = new GlobTypeGsonDeserializer(new GlobGSonDeserializer(), globTypeResolver, ignoreUnknownAnnotation);
+        this.globTypeGsonDeserializer = new GlobTypeGsonDeserializer(new GlobGSonDeserializer(), name -> {
+            final GlobType type = globTypeResolver.findType(name);
+            return type != null ? () -> type : null;
+        }, ignoreUnknownAnnotation);
         this.ignoreUnknownAnnotation = ignoreUnknownAnnotation;
     }
 

@@ -21,13 +21,13 @@ public class JsonAsObject {
 
     static {
         GlobTypeBuilder typeBuilder = GlobTypeBuilderFactory.create("JsonAsObject");
-        TYPE = typeBuilder.unCompleteType();
-        typeBuilder.complete();
+        typeBuilder.register(GlobCreateFromAnnotation.class, annotation -> getUniqueGlob());
+        TYPE = typeBuilder.build();
         UNIQUE_KEY = KeyBuilder.newEmptyKey(TYPE);
         UNIQUE_GLOB = TYPE.instantiate();
-        typeBuilder.register(GlobCreateFromAnnotation.class, annotation -> UNIQUE_GLOB);
-//        GlobTypeLoaderFactory.create(JsonAsObject.class, "JsonAsObject")
-//                .register(GlobCreateFromAnnotation.class, annotation -> UNIQUE_GLOB)
-//                .load();
+    }
+
+    private static Glob getUniqueGlob() {
+        return UNIQUE_GLOB;
     }
 }

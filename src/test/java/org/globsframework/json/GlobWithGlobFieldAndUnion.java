@@ -3,7 +3,8 @@ package org.globsframework.json;
 import com.google.gson.Gson;
 import org.globsframework.core.metamodel.GlobModel;
 import org.globsframework.core.metamodel.GlobType;
-import org.globsframework.core.metamodel.GlobTypeLoaderFactory;
+import org.globsframework.core.metamodel.GlobTypeBuilder;
+import org.globsframework.core.metamodel.GlobTypeBuilderFactory;
 import org.globsframework.core.metamodel.annotations.*;
 import org.globsframework.core.metamodel.fields.*;
 import org.globsframework.core.metamodel.impl.DefaultGlobModel;
@@ -12,6 +13,8 @@ import org.globsframework.core.model.MutableGlob;
 import org.globsframework.json.annottations.IsJsonContent;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.function.Supplier;
 
 import static org.globsframework.json.GlobsGsonAdapterTest.assertEquivalent;
 
@@ -60,32 +63,38 @@ public class GlobWithGlobFieldAndUnion {
 
     public static class LocalType {
         @Required_
-        public static GlobType TYPE;
+        public static final GlobType TYPE;
 
         @KeyField_
-        public static IntegerField ID;
+        public static final IntegerField ID;
 
         @Targets({SubSecondType.class, SubFirstType.class})
-        public static GlobUnionField SECOND_TYPE;
+        public static final GlobUnionField SECOND_TYPE;
 
         @Targets({SubSecondType.class, SubFirstType.class})
-        public static GlobArrayUnionField ARRAY_OF_UNIONS;
+        public static final GlobArrayUnionField ARRAY_OF_UNIONS;
 
         @Target(SubSecondType.class)
-        public static GlobArrayField ARRAY_OF_TYPE;
+        public static final GlobArrayField ARRAY_OF_TYPE;
 
         @Target(SubSecondType.class)
-        public static GlobField SIMPLE_TYPE;
+        public static final GlobField SIMPLE_TYPE;
 
         static {
-            GlobTypeLoaderFactory.create(LocalType.class, "test local type", true)
-                    .load();
+            GlobTypeBuilder globTypeBuilder = GlobTypeBuilderFactory.create("test local type");
+            globTypeBuilder.addAnnotation(Required.UNIQUE_GLOB);
+            ID = globTypeBuilder.declareIntegerField("id", KeyField.ZERO);
+            SECOND_TYPE = globTypeBuilder.declareGlobUnionField("secondType", new Supplier[]{() -> SubFirstType.TYPE, () -> SubSecondType.TYPE});
+            ARRAY_OF_UNIONS = globTypeBuilder.declareGlobUnionArrayField("arrayOfUnions", new Supplier[]{() -> SubFirstType.TYPE, () -> SubSecondType.TYPE});
+            ARRAY_OF_TYPE = globTypeBuilder.declareGlobArrayField("arrayOfType", () -> SubSecondType.TYPE);
+            SIMPLE_TYPE = globTypeBuilder.declareGlobField("simpleType", () -> SubSecondType.TYPE);
+            TYPE = globTypeBuilder.build();
         }
     }
 
     public static class SubFirstType {
         @Required_
-        public static GlobType TYPE;
+        public static final GlobType TYPE;
 
         @KeyField_
         public static StringField NAME;
@@ -96,22 +105,29 @@ public class GlobWithGlobFieldAndUnion {
         public static GlobField PARENT;
 
         static {
-            GlobTypeLoaderFactory.create(SubFirstType.class, "subFirst", true)
-                    .load();
+            GlobTypeBuilder globTypeBuilder = GlobTypeBuilderFactory.create("subFirst");
+            globTypeBuilder.addAnnotation(Required.UNIQUE_GLOB);
+            NAME = globTypeBuilder.declareStringField("name", KeyField.ZERO);
+            DATA = globTypeBuilder.declareStringField("data");
+            PARENT = globTypeBuilder.declareGlobField("parent", () -> SubFirstType.TYPE);
+            TYPE = globTypeBuilder.build();
         }
     }
 
     public static class SubSecondType {
         @Required_
-        public static GlobType TYPE;
+        public static final GlobType TYPE;
 
         public static IntegerField ID;
 
         public static DoubleField VALUE;
 
         static {
-            GlobTypeLoaderFactory.create(SubSecondType.class, "subSecond", true)
-                    .load();
+            GlobTypeBuilder globTypeBuilder = GlobTypeBuilderFactory.create("subSecond");
+            globTypeBuilder.addAnnotation(Required.UNIQUE_GLOB);
+            ID = globTypeBuilder.declareIntegerField("id", KeyField.ZERO);
+            VALUE = globTypeBuilder.declareDoubleField("value");
+            TYPE = globTypeBuilder.build();
         }
     }
 

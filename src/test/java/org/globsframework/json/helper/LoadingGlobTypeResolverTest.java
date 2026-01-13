@@ -14,7 +14,7 @@ public class LoadingGlobTypeResolverTest {
     @Test
     public void name() {
 
-        GlobType globType3 = GlobTypeBuilderFactory.create("type3").addStringField("field3").get();
+        GlobType globType3 = GlobTypeBuilderFactory.create("type3").addStringField("field3").build();
 
         LoadingGlobTypeResolver.Builder builder = LoadingGlobTypeResolver.builder(name -> {
             return name.equals("type3") ? globType3 : null;

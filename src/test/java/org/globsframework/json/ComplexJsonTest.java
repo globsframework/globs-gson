@@ -2,14 +2,14 @@ package org.globsframework.json;
 
 import junit.framework.Assert;
 import org.globsframework.core.metamodel.GlobType;
-import org.globsframework.core.metamodel.GlobTypeLoaderFactory;
+import org.globsframework.core.metamodel.GlobTypeBuilder;
+import org.globsframework.core.metamodel.GlobTypeBuilderFactory;
 import org.globsframework.core.metamodel.annotations.Target;
 import org.globsframework.core.metamodel.fields.GlobArrayField;
 import org.globsframework.core.metamodel.fields.StringField;
 import org.globsframework.core.model.Glob;
 import org.globsframework.core.model.MutableGlob;
-import org.globsframework.json.annottations.JsonAsObject_;
-import org.globsframework.json.annottations.JsonValueAsField_;
+import org.globsframework.json.annottations.*;
 import org.globsframework.json.field.JsonSerializerServiceImpl;
 import org.junit.Test;
 
@@ -76,16 +76,19 @@ public class ComplexJsonTest {
 
 
     public static class A {
-        public static GlobType TYPE;
+        public static final GlobType TYPE;
 
-        public static StringField a;
+        public static final StringField a;
 
         @Target(B.class)
         @JsonAsObject_
-        public static GlobArrayField b;
+        public static final GlobArrayField b;
 
         static {
-            GlobTypeLoaderFactory.create(A.class).load();
+            GlobTypeBuilder globTypeBuilder = GlobTypeBuilderFactory.create("A");
+            a = globTypeBuilder.declareStringField("a");
+            b = globTypeBuilder.declareGlobArrayField("b", () -> B.TYPE, JsonAsObject.UNIQUE_GLOB);
+            TYPE =  globTypeBuilder.build();
         }
     }
 
@@ -98,7 +101,10 @@ public class ComplexJsonTest {
         public static StringField otherField;
 
         static {
-            GlobTypeLoaderFactory.create(B.class).load();
+            GlobTypeBuilder  globTypeBuilder = GlobTypeBuilderFactory.create("B");
+            name = globTypeBuilder.declareStringField("name", JsonValueAsField.UNIQUE_GLOB);
+            otherField = globTypeBuilder.declareStringField("otherField");
+            TYPE = globTypeBuilder.build();
         }
     }
 }

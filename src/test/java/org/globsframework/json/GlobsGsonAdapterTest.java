@@ -4,10 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import org.globsframework.core.metamodel.*;
-import org.globsframework.core.metamodel.annotations.AllCoreAnnotations;
-import org.globsframework.core.metamodel.annotations.FieldName_;
-import org.globsframework.core.metamodel.annotations.KeyField_;
-import org.globsframework.core.metamodel.annotations.Required_;
+import org.globsframework.core.metamodel.annotations.*;
 import org.globsframework.core.metamodel.fields.*;
 import org.globsframework.core.metamodel.impl.DefaultGlobModel;
 import org.globsframework.core.metamodel.impl.DefaultGlobTypeBuilder;
@@ -20,6 +17,7 @@ import org.globsframework.json.field.JsonSerializerServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
+import javax.print.attribute.standard.MediaSize;
 import java.io.*;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
@@ -27,6 +25,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
@@ -59,8 +58,15 @@ public class GlobsGsonAdapterTest {
 //        public static StringField CUSTOM;
 
         static {
-            final GlobTypeLoader testLocalType = GlobTypeLoaderFactory.create(LocalType.class, "test local type", true);
-            testLocalType.load();
+            GlobTypeBuilder globTypeBuilder = GlobTypeBuilderFactory.create("test local type");
+            globTypeBuilder.addAnnotation(Required.UNIQUE_GLOB);
+            ID = globTypeBuilder.declareIntegerField("id", KeyField.ZERO);
+            NAME = globTypeBuilder.declareStringField("a different name", KeyField.ONE);
+            DATA = globTypeBuilder.declareStringField("data", IsJsonContent.UNIQUE_GLOB);
+            VALUE = globTypeBuilder.declareDoubleField("value");
+            TYPE = globTypeBuilder.build();
+//            final GlobTypeLoader testLocalType = GlobTypeLoaderFactory.create(LocalType.class, "test local type", true);
+//            testLocalType.load();
 //            testLocalType.register(CUSTOM, ToStringFieldJsonSerializer.class, new ToStringFieldJsonSerializer() {
 //                @Override
 //                public String serialize(Glob value) {
@@ -418,12 +424,12 @@ public class GlobsGsonAdapterTest {
         GlobTypeBuilder innerGlobTypeBuilder = DefaultGlobTypeBuilder.init("histo");
         DoubleField valueField = innerGlobTypeBuilder.declareDoubleField("value");
         IntegerField dateField = innerGlobTypeBuilder.declareIntegerField("date");
-        GlobType innerType = innerGlobTypeBuilder.get();
+        GlobType innerType = innerGlobTypeBuilder.build();
 
         GlobTypeBuilder inner2GlobTypeBuilder = DefaultGlobTypeBuilder.init("histo2");
         DoubleField valueField2 = inner2GlobTypeBuilder.declareDoubleField("value2");
         IntegerField dateField2 = inner2GlobTypeBuilder.declareIntegerField("date2");
-        GlobType innerType2 = inner2GlobTypeBuilder.get();
+        GlobType innerType2 = inner2GlobTypeBuilder.build();
 
         GlobTypeBuilder globTypeBuilder = DefaultGlobTypeBuilder.init("AllType");
         IntegerField anInt = globTypeBuilder.declareIntegerField("int");
@@ -445,10 +451,11 @@ public class GlobsGsonAdapterTest {
         DateField date = globTypeBuilder.declareDateField("date");
         DateTimeField dateTime = globTypeBuilder.declareDateTimeField("dateTime");
         BytesField Bytes = globTypeBuilder.declareBytesField("bytes");
-        GlobField globField = globTypeBuilder.declareGlobField("glob", innerType);
-        GlobArrayField globArrayField = globTypeBuilder.declareGlobArrayField("globArray", innerType);
-        GlobArrayUnionField globArrayUnionField = globTypeBuilder.declareGlobUnionArrayField("globArrayUnion", List.of(innerType, innerType2));
-        GlobType globType = globTypeBuilder.get();
+        GlobField globField = globTypeBuilder.declareGlobField("glob", () -> innerType);
+        GlobArrayField globArrayField = globTypeBuilder.declareGlobArrayField("globArray", () -> innerType);
+        GlobArrayUnionField globArrayUnionField = globTypeBuilder.declareGlobUnionArrayField("globArrayUnion",
+                new Supplier[]{() -> innerType, () -> innerType2});
+        GlobType globType = globTypeBuilder.build();
 
         Gson gson = init(globType, innerType, innerType2);
 
@@ -520,12 +527,12 @@ public class GlobsGsonAdapterTest {
         GlobTypeBuilder innerGlobTypeBuilder = DefaultGlobTypeBuilder.init("histo");
         DoubleField valueField = innerGlobTypeBuilder.declareDoubleField("value");
         IntegerField dateField = innerGlobTypeBuilder.declareIntegerField("date");
-        GlobType innerType = innerGlobTypeBuilder.get();
+        GlobType innerType = innerGlobTypeBuilder.build();
 
         GlobTypeBuilder inner2GlobTypeBuilder = DefaultGlobTypeBuilder.init("histo2");
         DoubleField valueField2 = inner2GlobTypeBuilder.declareDoubleField("value2");
         IntegerField dateField2 = inner2GlobTypeBuilder.declareIntegerField("date2");
-        GlobType innerType2 = inner2GlobTypeBuilder.get();
+        GlobType innerType2 = inner2GlobTypeBuilder.build();
 
         GlobTypeBuilder globTypeBuilder = DefaultGlobTypeBuilder.init("AllType");
         IntegerField anInt = globTypeBuilder.declareIntegerField("int");
@@ -547,10 +554,11 @@ public class GlobsGsonAdapterTest {
         DateField date = globTypeBuilder.declareDateField("date");
         DateTimeField dateTime = globTypeBuilder.declareDateTimeField("dateTime");
         BytesField Bytes = globTypeBuilder.declareBytesField("bytes");
-        GlobField globField = globTypeBuilder.declareGlobField("glob", innerType);
-        GlobArrayField globArrayField = globTypeBuilder.declareGlobArrayField("globArray", innerType);
-        GlobArrayUnionField globArrayUnionField = globTypeBuilder.declareGlobUnionArrayField("globArrayUnion", List.of(innerType, innerType2));
-        GlobType globType = globTypeBuilder.get();
+        GlobField globField = globTypeBuilder.declareGlobField("glob", () -> innerType);
+        GlobArrayField globArrayField = globTypeBuilder.declareGlobArrayField("globArray", () -> innerType);
+        GlobArrayUnionField globArrayUnionField = globTypeBuilder.declareGlobUnionArrayField("globArrayUnion",
+                new Supplier[]{() -> innerType, () -> innerType2});
+        GlobType globType = globTypeBuilder.build();
 
         Gson gson = init(globType, innerType, innerType2);
 
@@ -644,7 +652,9 @@ public class GlobsGsonAdapterTest {
         public static StringField DATA;
 
         static {
-            GlobTypeLoaderFactory.create(ComplexClassName.class, "#$\"\\é&à@", true).load();
+            GlobTypeBuilder typeBuilder = GlobTypeBuilderFactory.create("#$\"\\é&à@");
+            DATA = typeBuilder.declareStringField("data");
+            TYPE = typeBuilder.build();
         }
     }
 

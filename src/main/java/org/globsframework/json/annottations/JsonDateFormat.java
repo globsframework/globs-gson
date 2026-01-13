@@ -8,6 +8,7 @@ import org.globsframework.core.metamodel.annotations.InitUniqueKey;
 import org.globsframework.core.metamodel.fields.StringField;
 import org.globsframework.core.model.Key;
 import org.globsframework.core.model.KeyBuilder;
+import org.globsframework.core.model.MutableGlob;
 
 public class JsonDateFormat {
     public static final GlobType TYPE;
@@ -19,14 +20,14 @@ public class JsonDateFormat {
 
     static {
         GlobTypeBuilder typeBuilder = GlobTypeBuilderFactory.create("JsonDateFormat");
-        TYPE = typeBuilder.unCompleteType();
         FORMAT = typeBuilder.declareStringField("format");
-        typeBuilder.complete();
-        typeBuilder.register(GlobCreateFromAnnotation.class, annotation -> TYPE.instantiate().set(FORMAT, ((JsonDateFormat_) annotation).value()));
+        typeBuilder.register(GlobCreateFromAnnotation.class, annotation -> get((JsonDateFormat_) annotation));
+        TYPE = typeBuilder.build();
         UNIQUE_KEY = KeyBuilder.newEmptyKey(TYPE);
-//        GlobTypeLoaderFactory.create(JsonDateFormat.class, "JsonDateFormat")
-//                .register(GlobCreateFromAnnotation.class, annotation -> TYPE.instantiate().set(FORMAT, ((JsonDateFormat_) annotation).value()))
-//                .load();
+    }
+
+    private static MutableGlob get(JsonDateFormat_ annotation) {
+        return TYPE.instantiate().set(FORMAT, annotation.value());
     }
 
 }

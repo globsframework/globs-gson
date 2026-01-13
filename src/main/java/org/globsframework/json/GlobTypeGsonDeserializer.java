@@ -3,7 +3,6 @@ package org.globsframework.json;
 import com.google.gson.*;
 import org.globsframework.core.metamodel.GlobType;
 import org.globsframework.core.metamodel.GlobTypeBuilder;
-import org.globsframework.core.metamodel.GlobTypeResolver;
 import org.globsframework.core.metamodel.impl.DefaultGlobTypeBuilder;
 import org.globsframework.core.model.Glob;
 import org.slf4j.Logger;
@@ -11,25 +10,23 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
+import java.util.function.Supplier;
 import java.util.stream.StreamSupport;
 
 class GlobTypeGsonDeserializer {
     private static Logger LOGGER = LoggerFactory.getLogger(GlobGSonDeserializer.class);
     private final GlobGSonDeserializer globGSonDeserializer;
-    private final GlobTypeResolver globTypeResolver;
+    private final GlobTypeSupplier globTypeSupplier;
     private boolean ignoreUnknownAnnotation;
-    private final Map<String, GlobType> types = new ConcurrentHashMap<>(); // pour gérer la recursivitée liée au Union/GlobField
+    private final Map<String, Supplier<GlobType>> types = new ConcurrentHashMap<>(); // pour gérer la recursivitée liée au Union/GlobField
 
-    GlobTypeGsonDeserializer(GlobGSonDeserializer globGSonDeserializer, GlobTypeResolver globTypeResolver, boolean ignoreUnknownAnnotation) {
+    public interface GlobTypeSupplier {
+        Supplier<GlobType> find(String name);
+    }
+
+    GlobTypeGsonDeserializer(GlobGSonDeserializer globGSonDeserializer, GlobTypeSupplier globTypeSupplier, boolean ignoreUnknownAnnotation) {
         this.globGSonDeserializer = globGSonDeserializer;
-        this.globTypeResolver = name -> {
-            GlobType globType = types.get(name);
-            if (globType != null) {
-                return globType;
-            }
-            return globTypeResolver.findType(name);
-        };
+        this.globTypeSupplier = globTypeSupplier;
         this.ignoreUnknownAnnotation = ignoreUnknownAnnotation;
     }
 
@@ -48,8 +45,7 @@ class GlobTypeGsonDeserializer {
             String name = typeElement.getAsString();
             List<Glob> globAnnotations = readAnnotations(jsonObject);
             GlobTypeBuilder globTypeBuilder = DefaultGlobTypeBuilder.init(name, globAnnotations);
-            GlobType globType = globTypeBuilder.unCompleteType();
-            types.put(name, globType);
+            types.put(name, () -> globTypeBuilder.build());
             clean = () -> types.remove(name);
             JsonElement fields = jsonObject.get(GlobsGson.FIELDS);
             if (fields != null) {
@@ -65,7 +61,7 @@ class GlobTypeGsonDeserializer {
                     }
                 }
             }
-            return globTypeBuilder.get();
+            return globTypeBuilder.build();
         } catch (JsonParseException e) {
             Gson gson = new Gson();
             LOGGER.error("Fail to parse : " + gson.toJson(json));
@@ -126,30 +122,36 @@ class GlobTypeGsonDeserializer {
                 globTypeBuilder.declareBytesField(attrName, globList);
                 break;
             case GlobsGson.GLOB_TYPE:
-                globTypeBuilder.declareGlobField(attrName, globTypeResolver.getType(fieldContent.get(GlobsGson.GLOB_TYPE_KIND).getAsString()), globList);
+                globTypeBuilder.declareGlobField(attrName, getTypeSupplier(fieldContent.get(GlobsGson.GLOB_TYPE_KIND).getAsString()), globList);
                 break;
             case GlobsGson.GLOB_ARRAY_TYPE:
-                globTypeBuilder.declareGlobArrayField(attrName, globTypeResolver.getType(fieldContent.get(GlobsGson.GLOB_TYPE_KIND).getAsString()), globList);
+                globTypeBuilder.declareGlobArrayField(attrName, getTypeSupplier(fieldContent.get(GlobsGson.GLOB_TYPE_KIND).getAsString()), globList);
                 break;
             case GlobsGson.GLOB_UNION_TYPE: {
                 JsonArray kind = fieldContent.get(GlobsGson.GLOB_UNION_KINDS).getAsJsonArray();
-                globTypeBuilder.declareGlobUnionField(attrName,
-                        StreamSupport.stream(Spliterators.spliterator(kind.iterator(), kind.size(), 0), false)
-                                .map(JsonElement::getAsString)
-                                .map(globTypeResolver::getType).collect(Collectors.toList()), globList);
+                globTypeBuilder.declareGlobUnionField(attrName, getTypesSupplier(kind), globList);
                 break;
             }
             case GlobsGson.GLOB_UNION_ARRAY_TYPE: {
                 JsonArray kind = fieldContent.get(GlobsGson.GLOB_UNION_KINDS).getAsJsonArray();
-                globTypeBuilder.declareGlobUnionArrayField(attrName,
-                        StreamSupport.stream(Spliterators.spliterator(kind.iterator(), kind.size(), 0), false)
-                                .map(JsonElement::getAsString)
-                                .map(globTypeResolver::getType).collect(Collectors.toList()), globList);
+                globTypeBuilder.declareGlobUnionArrayField(attrName, getTypesSupplier(kind), globList);
                 break;
             }
             default:
                 throw new RuntimeException(type + " not managed");
         }
+    }
+
+    private Supplier[] getTypesSupplier(JsonArray kind) {
+        return StreamSupport.stream(Spliterators.spliterator(kind.iterator(), kind.size(), 0), false)
+                .map(JsonElement::getAsString)
+                .map(this::getTypeSupplier)
+                .toArray(Supplier[]::new);
+    }
+
+    private Supplier<GlobType> getTypeSupplier(String typeName) {
+        final Supplier<GlobType> type1 = globTypeSupplier.find(typeName);
+        return type1 != null ? type1 : types.get(typeName);
     }
 
     private List<Glob> readAnnotations(JsonObject fieldContent) {
@@ -159,7 +161,10 @@ class GlobTypeGsonDeserializer {
             globList = new ArrayList<>();
             for (JsonElement annotation : annotations) {
                 if (annotation != null) {
-                    globList.add(GlobGSonDeserializer.deserialize(annotation, globTypeResolver, ignoreUnknownAnnotation));
+                    globList.add(GlobGSonDeserializer.deserialize(annotation, s -> {
+                        final Supplier<GlobType> globTypeSupplier1 = globTypeSupplier.find(s);
+                        return globTypeSupplier1 != null ? globTypeSupplier1.get() : null;
+                    }, ignoreUnknownAnnotation));
                 }
             }
         }
