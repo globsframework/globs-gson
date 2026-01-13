@@ -80,7 +80,7 @@ public class PerfReadWriteTest {
 //        DateTimeField aDate = globTypeBuilder.declareDateTimeField("aDate", JsonDateTimeFormatType.TYPE.instantiate()
 //                .set(JsonDateTimeFormatType.useFastIso8601, true));
 
-        GlobType globType = globTypeBuilder.get();
+        GlobType globType = globTypeBuilder.build();
 
         List<Glob> collect = IntStream.range(0, 1000)
                 .mapToObj(i ->

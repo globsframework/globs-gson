@@ -40,11 +40,8 @@ public class CustomTest {
 
         static {
             final GlobTypeBuilder globTypeBuilder = GlobTypeBuilderFactory.create("Custom");
-            TYPE = globTypeBuilder.unCompleteType();
             custom = globTypeBuilder.declareStringField("custom");
             SECRET = globTypeBuilder.declareStringField("secret", JsonHideValue.UNIQUE_GLOB);
-            globTypeBuilder.complete();
-
             globTypeBuilder.register(custom, ToStringFieldJsonSerializer.class, new ToStringFieldJsonSerializer() {
 
                 @Override
@@ -57,6 +54,7 @@ public class CustomTest {
                     glob.set(custom, value.substring(3));
                 }
             });
+            TYPE = globTypeBuilder.build();
         }
     }
 }

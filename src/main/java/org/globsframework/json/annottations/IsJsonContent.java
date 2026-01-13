@@ -21,15 +21,14 @@ public class IsJsonContent {
 
     static {
         GlobTypeBuilder typeBuilder = GlobTypeBuilderFactory.create("IsJsonContent");
-        TYPE = typeBuilder.unCompleteType();
-        typeBuilder.complete();
+        typeBuilder.register(GlobCreateFromAnnotation.class, annotation -> getUniqueGlob());
+        TYPE = typeBuilder.build();
         UNIQUE_KEY = KeyBuilder.newEmptyKey(TYPE);
         UNIQUE_GLOB = TYPE.instantiate();
-        typeBuilder.register(GlobCreateFromAnnotation.class, annotation -> UNIQUE_GLOB);
+    }
 
-        //        GlobTypeLoaderFactory.create(IsJsonContent.class, "IsJsonContent")
-//                .register(GlobCreateFromAnnotation.class, annotation -> UNIQUE_GLOB)
-//                .load();
+    private static Glob getUniqueGlob() {
+        return UNIQUE_GLOB;
     }
 
 

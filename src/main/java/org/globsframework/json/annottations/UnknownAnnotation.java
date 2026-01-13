@@ -18,10 +18,8 @@ public class UnknownAnnotation {
 
     static {
         GlobTypeBuilder typeBuilder = GlobTypeBuilderFactory.create("UnknownAnnotation");
-        TYPE = typeBuilder.unCompleteType();
         uuid = typeBuilder.declareStringField("uuid", KeyField.ZERO);
         CONTENT = typeBuilder.declareStringField("content", IsJsonContent.UNIQUE_GLOB);
-        typeBuilder.complete();
-//        GlobTypeLoaderFactory.create(UnknownAnnotation.class, "UnknownAnnotation").load();
+        TYPE = typeBuilder.build();
     }
 }

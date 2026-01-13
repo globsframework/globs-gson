@@ -1,7 +1,8 @@
 package org.globsframework.json;
 
 import org.globsframework.core.metamodel.GlobType;
-import org.globsframework.core.metamodel.GlobTypeLoaderFactory;
+import org.globsframework.core.metamodel.GlobTypeBuilder;
+import org.globsframework.core.metamodel.GlobTypeBuilderFactory;
 import org.globsframework.core.metamodel.annotations.*;
 import org.globsframework.core.metamodel.fields.DateTimeField;
 import org.globsframework.core.metamodel.fields.GlobField;
@@ -82,8 +83,12 @@ public class GSonUtilsTest {
 
 
         static {
-            GlobTypeLoaderFactory.create(LocalType.class, "test local type", true)
-                    .load();
+            GlobTypeBuilder globTypeBuilder = GlobTypeBuilderFactory.create("test local type");
+            id = globTypeBuilder.declareIntegerField("id", KeyField.ZERO);
+            name = globTypeBuilder.declareStringField("name", Annotation_1.TYPE.instantiate()
+                    .set(Annotation_1.sub, Annotation_2.TYPE.instantiate().set(Annotation_2.b, "aa")));
+            arrival = globTypeBuilder.declareDateTimeField("arrival", JsonDateTimeFormat.create("yyyy-MM-dd HH:mm:ss", true, "0000"));
+            TYPE = globTypeBuilder.build();
         }
     }
 
@@ -103,21 +108,26 @@ public class GSonUtilsTest {
         public static GlobField sub;
 
         static {
-            GlobTypeLoaderFactory.create(Annotation_1.class)
-                    .register(GlobCreateFromAnnotation.class, annotation -> TYPE.instantiate()
-                            .set(sub, Annotation_2.TYPE.instantiate().set(Annotation_2.b, "aa"))).load()
-            ;
+            GlobTypeBuilder typeBuilder = GlobTypeBuilderFactory.create("annotation1");
+            a = typeBuilder.declareStringField("a");
+            sub = typeBuilder.declareGlobField("sub", () -> Annotation_2.TYPE);
+            TYPE = typeBuilder.build();
+//            GlobTypeLoaderFactory.create(Annotation_1.class)
+//                    .register(GlobCreateFromAnnotation.class, annotation -> TYPE.instantiate()
+//                            .set(sub, Annotation_2.TYPE.instantiate().set(Annotation_2.b, "aa"))).load()
+//            ;
         }
     }
 
     public static class Annotation_2 {
-        public static GlobType TYPE;
+        public static final GlobType TYPE;
 
-        public static StringField b;
-
+        public static final StringField b;
 
         static {
-            GlobTypeLoaderFactory.create(Annotation_2.class).load();
+            GlobTypeBuilder typeBuilder =  GlobTypeBuilderFactory.create("annotation2");
+            b = typeBuilder.declareStringField("b");
+            TYPE = typeBuilder.build();
         }
     }
 
@@ -128,7 +138,9 @@ public class GSonUtilsTest {
         public static StringField longId;
 
         static {
-            GlobTypeLoaderFactory.create(BigInt.class).load();
+            GlobTypeBuilder typeBuilder = GlobTypeBuilderFactory.create("bigint");
+            longId = typeBuilder.declareStringField("longId");
+            TYPE = typeBuilder.build();
         }
     }
 

@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public class GlobTypeSetAdapter extends TypeAdapter<GlobTypeSet> {
     GlobTypeArrayGsonAdapter globTypeArrayGsonAdapter;
@@ -41,7 +42,7 @@ public class GlobTypeSetAdapter extends TypeAdapter<GlobTypeSet> {
             throw new RuntimeException("array expected got " + root.toString());
         }
         JsonArray asJsonArray = root.getAsJsonArray();
-        Map<String, JsonObject> typesToRead = new LinkedHashMap<>();
+        Map<String, TypeWithJson> typesToRead = new LinkedHashMap<>();
         for (JsonElement jsonElement : asJsonArray) {
             JsonObject jsonType = jsonElement.getAsJsonObject();
             JsonElement jsonKind = jsonType.get(GlobsGson.TYPE_NAME);
@@ -49,41 +50,39 @@ public class GlobTypeSetAdapter extends TypeAdapter<GlobTypeSet> {
                 throw new RuntimeException("Bug missing " + GlobsGson.TYPE_NAME + " attribute in " + asJsonArray.toString());
             }
             String kind = jsonKind.getAsString();
-            typesToRead.put(kind, jsonType);
+            typesToRead.put(kind, new TypeWithJson(new ReadGlobType(), jsonType));
         }
-        Resolver resolver = new Resolver(globTypeResolver, typesToRead, ignoreUnknownAnnotation);
-        typesToRead.forEach((key, value) -> resolver.findType(key));
-        return new GlobTypeSet(typesToRead.keySet().stream().map(resolver::findType).toArray(GlobType[]::new));
+        GlobTypeGsonDeserializer globTypeGsonDeserializer = new GlobTypeGsonDeserializer(new GlobGSonDeserializer(), name -> {
+            final GlobType type = globTypeResolver.findType(name);
+            if (type != null) {
+                return () -> type;
+            }
+            final TypeWithJson typeWithJson = typesToRead.get(name);
+            return typeWithJson == null ? null : typeWithJson.readGlobType;
+        }, ignoreUnknownAnnotation);
+
+        GlobType[] readed = new GlobType[typesToRead.size()];
+        int i = 0;
+        for (TypeWithJson value : typesToRead.values()) {
+            value.readGlobType().init(globTypeGsonDeserializer, value.jsonType);
+            readed[i++] = value.readGlobType().globType;
+        }
+        return new GlobTypeSet(readed);
     }
 
-    static class Resolver implements GlobTypeResolver {
-        private GlobTypeResolver globTypeResolver;
-        final Map<String, JsonObject> typesToRead;
-        final Map<String, GlobType> readTypes = new HashMap<>();
-        private final GlobTypeGsonDeserializer globTypeGsonDeserializer;
+    record TypeWithJson(ReadGlobType readGlobType, JsonObject jsonType) {
 
-        Resolver(GlobTypeResolver globTypeResolver, Map<String, JsonObject> typesToRead, boolean ignoreUnknownAnnotation) {
-            this.globTypeResolver = globTypeResolver;
-            this.typesToRead = typesToRead;
-            globTypeGsonDeserializer = new GlobTypeGsonDeserializer(new GlobGSonDeserializer(), this, ignoreUnknownAnnotation);
+    }
+
+    static class ReadGlobType implements Supplier<GlobType> {
+        GlobType globType;
+        @Override
+        public GlobType get() {
+            return globType;
         }
 
-        public GlobType findType(String name) {
-            GlobType globType1 = globTypeResolver.findType(name);
-            if (globType1 != null) {
-                return globType1;
-            }
-            JsonObject jsonObject = typesToRead.get(name);
-            if (jsonObject == null) {
-                return null;
-            }
-            GlobType globType = readTypes.get(name);
-            if (globType != null) {
-                return globType;
-            }
-            GlobType readType = globTypeGsonDeserializer.deserialize(jsonObject);
-            readTypes.put(readType.getName(), readType);
-            return readType;
+        void init(GlobTypeGsonDeserializer globTypeGsonDeserializer, JsonObject jsonType) {
+            globType = globTypeGsonDeserializer.deserialize(jsonType);
         }
     }
 

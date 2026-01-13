@@ -1,10 +1,12 @@
 package org.globsframework.json;
 
 import org.globsframework.core.metamodel.GlobType;
-import org.globsframework.core.metamodel.GlobTypeLoaderFactory;
+import org.globsframework.core.metamodel.GlobTypeBuilder;
+import org.globsframework.core.metamodel.GlobTypeBuilderFactory;
 import org.globsframework.core.metamodel.fields.StringField;
 import org.globsframework.core.model.Glob;
 import org.globsframework.core.model.MutableGlob;
+import org.globsframework.json.annottations.IsJsonContent;
 import org.globsframework.json.annottations.IsJsonContent_;
 import org.globsframework.json.field.JsonSerializerServiceImpl;
 import org.junit.Assert;
@@ -51,7 +53,9 @@ public class TestWithIsJsonContent {
         public static StringField value;
 
         static {
-            GlobTypeLoaderFactory.create(TypeWithJsonAttr.class).load();
+            GlobTypeBuilder globTypeBuilder = GlobTypeBuilderFactory.create("typeWithJsonAttr");
+            value = globTypeBuilder.declareStringField("value", IsJsonContent.UNIQUE_GLOB);
+            TYPE = globTypeBuilder.build();
         }
     }
 }

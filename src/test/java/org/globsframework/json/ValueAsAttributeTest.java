@@ -51,9 +51,8 @@ public class ValueAsAttributeTest {
         static {
             GlobTypeBuilder builder = GlobTypeBuilderFactory.create("Root");
             builder.addAnnotation(JsonFlatten.UNIQUE_GLOB);
-            TYPE = builder.unCompleteType();
-            l1s = builder.declareGlobArrayField("l1s", L1.TYPE, JsonFlattenTargetArray.UNIQUE_GLOB);
-            builder.complete();
+            l1s = builder.declareGlobArrayField("l1s", () -> L1.TYPE, JsonFlattenTargetArray.UNIQUE_GLOB);
+            TYPE = builder.build();
         }
     }
 
@@ -67,10 +66,9 @@ public class ValueAsAttributeTest {
         static {
             GlobTypeBuilder builder = GlobTypeBuilderFactory.create("L1");
             builder.addAnnotation(JsonFlatten.UNIQUE_GLOB);
-            TYPE = builder.unCompleteType();
             name = builder.declareStringField("name", JsonFlattenAttribute.UNIQUE_GLOB);
-            l2s = builder.declareGlobArrayField("l2s", L2.TYPE, JsonFlattenTargetArray.UNIQUE_GLOB);
-            builder.complete();
+            l2s = builder.declareGlobArrayField("l2s", () -> L2.TYPE, JsonFlattenTargetArray.UNIQUE_GLOB);
+            TYPE = builder.build();
         }
     }
     public static class L2 {
@@ -82,10 +80,9 @@ public class ValueAsAttributeTest {
 
         static {
             GlobTypeBuilder builder = GlobTypeBuilderFactory.create("L2");
-            TYPE = builder.unCompleteType();
             v1 = builder.declareStringField("v1", JsonFlattenAttribute.UNIQUE_GLOB);
             v2 = builder.declareStringField("v2", JsonFlattenTargetAttribute.UNIQUE_GLOB);
-            builder.complete();
+            TYPE = builder.build();
         }
     }
 
