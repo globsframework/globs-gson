@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import junit.framework.Assert;
 import org.globsframework.core.metamodel.GlobType;
+import org.globsframework.core.metamodel.GlobTypeBuilder;
+import org.globsframework.core.metamodel.GlobTypeBuilderFactory;
 import org.globsframework.core.metamodel.GlobTypeLoaderFactory;
 import org.globsframework.core.metamodel.annotations.KeyField_;
 import org.globsframework.core.metamodel.fields.StringField;
@@ -14,7 +16,6 @@ public class UnknownAnnotationTest {
 
     @Test
     public void testWriteReadWriteRead() {
-        TypeToTest.F1.addAnnotation(Ann1.TYPE.instantiate().set(Ann1.UUID, "XXX").set(Ann1.SOME_DATA, "aa"));
         GsonBuilder builder = GlobsGson.createBuilder(name -> {
                     if (name.equals(TypeToTest.TYPE.getName())) {
                         return TypeToTest.TYPE;
@@ -55,7 +56,9 @@ public class UnknownAnnotationTest {
         public static StringField F1;
 
         static {
-            GlobTypeLoaderFactory.create(TypeToTest.class).load();
+            GlobTypeBuilder typeBuilder = GlobTypeBuilderFactory.create("typeToTest");
+            F1 = typeBuilder.declareStringField("f1", Ann1.TYPE.instantiate().set(Ann1.UUID, "XXX").set(Ann1.SOME_DATA, "aa"));
+            TYPE = typeBuilder.get();
         }
     }
 

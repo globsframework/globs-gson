@@ -213,7 +213,7 @@ public class ReadJsonWithReaderFieldVisitor implements FieldVisitorWithTwoContex
             Field fieldValueToUseAsName = targetType.findFieldWithAnnotation(JsonValueAsField.UNIQUE_KEY);
             if (fieldValueToUseAsName == null) {
                 throw new RuntimeException("A field with " + JsonValueAsField.TYPE.getName() + " annotation is expected after " +
-                        JsonAsObject.TYPE.getName());
+                                           JsonAsObject.TYPE.getName());
             }
             StringField typedFieldToUseAsName = fieldValueToUseAsName.asStringField();
             jsonReader.beginObject();
@@ -226,12 +226,18 @@ public class ReadJsonWithReaderFieldVisitor implements FieldVisitorWithTwoContex
                 jsonReader.endObject();
                 objs.add(newObj);
             }
+            jsonReader.endObject();
         } else {
             jsonReader.beginArray();
             while (jsonReader.peek() != JsonToken.END_ARRAY) {
-                jsonReader.beginObject();
-                objs.add(readField(jsonReader, targetType));
-                jsonReader.endObject();
+                if (jsonReader.peek() == JsonToken.NULL) {
+                    objs.add(null);
+                    jsonReader.nextNull();
+                } else {
+                    jsonReader.beginObject();
+                    objs.add(readField(jsonReader, targetType));
+                    jsonReader.endObject();
+                }
             }
             jsonReader.endArray();
         }
@@ -256,12 +262,17 @@ public class ReadJsonWithReaderFieldVisitor implements FieldVisitorWithTwoContex
             if (values.length == count) {
                 values = Arrays.copyOf(values, values.length * 2);
             }
-            jsonReader.beginObject();
-            String name = jsonReader.nextName();
-            jsonReader.beginObject();
-            values[count++] = readField(jsonReader, field.getTargetType(name));
-            jsonReader.endObject();
-            jsonReader.endObject();
+            if (jsonReader.peek() == JsonToken.NULL) {
+                jsonReader.nextNull();
+                values[count++] = null;
+            } else {
+                jsonReader.beginObject();
+                String name = jsonReader.nextName();
+                jsonReader.beginObject();
+                values[count++] = readField(jsonReader, field.getTargetType(name));
+                jsonReader.endObject();
+                jsonReader.endObject();
+            }
         }
         jsonReader.endArray();
         mutableGlob.set(field, Arrays.copyOf(values, count));

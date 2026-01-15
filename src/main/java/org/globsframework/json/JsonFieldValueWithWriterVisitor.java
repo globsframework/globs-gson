@@ -183,22 +183,24 @@ public class JsonFieldValueWithWriterVisitor implements FieldValueVisitorWithCon
                         JsonAsObject.TYPE.getName() + " for " + field.getFullName());
             }
             for (Glob glob : value) {
-                Object value1 = glob.getValue(fieldValueToUseAsName);
-                if (value1 == null) {
-                    throw new RuntimeException("Value can not be null for a JsonValueAsField field " + fieldValueToUseAsName.getFullName());
-                }
-                jsonWriter.name(Objects.toString(value1));
-                jsonWriter.beginObject();
-
-                glob.safeAccept(new AbstractFieldValueVisitor<JsonWriter>() {
-                    public void notManaged(Field field, Object value, JsonWriter jsonWriter) throws Exception {
-                        if (field != fieldValueToUseAsName) {
-                            field.acceptValue(JsonFieldValueWithWriterVisitor.this, value, jsonWriter);
-                        }
+                if (glob != null) {
+                    Object value1 = glob.getValue(fieldValueToUseAsName);
+                    if (value1 == null) {
+                        throw new RuntimeException("Value can not be null for a JsonValueAsField field " + fieldValueToUseAsName.getFullName());
                     }
-                }, jsonWriter);
+                    jsonWriter.name(Objects.toString(value1));
+                    jsonWriter.beginObject();
 
-                jsonWriter.endObject();
+                    glob.safeAccept(new AbstractFieldValueVisitor<JsonWriter>() {
+                        public void notManaged(Field field, Object value, JsonWriter jsonWriter) throws Exception {
+                            if (field != fieldValueToUseAsName) {
+                                field.acceptValue(JsonFieldValueWithWriterVisitor.this, value, jsonWriter);
+                            }
+                        }
+                    }, jsonWriter);
+
+                    jsonWriter.endObject();
+                }
             }
             jsonWriter.endObject();
         } else {
@@ -206,9 +208,14 @@ public class JsonFieldValueWithWriterVisitor implements FieldValueVisitorWithCon
             if (value != null) {
                 jsonWriter.beginArray();
                 for (Glob v : value) {
-                    jsonWriter.beginObject();
-                    addGlobAttributes(v, jsonWriter);
-                    jsonWriter.endObject();
+                    if (v != null) {
+                        jsonWriter.beginObject();
+                        addGlobAttributes(v, jsonWriter);
+                        jsonWriter.endObject();
+                    }
+                    else {
+                        jsonWriter.nullValue();
+                    }
                 }
                 jsonWriter.endArray();
             } else {
@@ -240,12 +247,17 @@ public class JsonFieldValueWithWriterVisitor implements FieldValueVisitorWithCon
         if (value != null) {
             jsonWriter.beginArray();
             for (Glob v : value) {
-                jsonWriter.beginObject();
-                jsonWriter.name(v.getType().getName());
-                jsonWriter.beginObject();
-                addGlobAttributes(v, jsonWriter);
-                jsonWriter.endObject();
-                jsonWriter.endObject();
+                if (v != null) {
+                    jsonWriter.beginObject();
+                    jsonWriter.name(v.getType().getName());
+                    jsonWriter.beginObject();
+                    addGlobAttributes(v, jsonWriter);
+                    jsonWriter.endObject();
+                    jsonWriter.endObject();
+                }
+                else {
+                    jsonWriter.nullValue();
+                }
             }
             jsonWriter.endArray();
         } else {

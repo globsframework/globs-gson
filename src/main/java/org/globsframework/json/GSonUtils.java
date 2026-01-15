@@ -360,7 +360,7 @@ public class GSonUtils {
         }
 
         public String format(ZonedDateTime date) {
-            return ISO8601Utils.format(date, false, true);
+            return ISO8601Utils.format(date, false, true, true);
         }
     }
 
@@ -372,7 +372,7 @@ public class GSonUtils {
         }
 
         public String format(ZonedDateTime date) {
-            return ISO8601Utils.format(date, false, false);
+            return ISO8601Utils.format(date, false, false, false);
         }
     }
 

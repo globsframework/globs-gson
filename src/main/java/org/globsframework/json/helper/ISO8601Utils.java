@@ -22,7 +22,7 @@ public class ISO8601Utils {
      * @param nano   true to include nano precision otherwise false (used if millis is also set)
      * @return the date formatted as yyyy-MM-ddThh:mm:ss[.sss][Z|[+-]hh:mm]
      */
-    public static String format(ZonedDateTime date, boolean millis, boolean nano) {
+    public static String format(ZonedDateTime date, boolean millis, boolean nano, boolean withZone) {
 
         StringBuilder formatted = new StringBuilder(40);
 
@@ -47,10 +47,12 @@ public class ISO8601Utils {
 
         final ZoneOffset offset = date.getOffset();
         formatted.append(offset.getId());
-        if (offset != date.getZone()) {
-            formatted.append("[")
-                    .append(date.getZone().getId())
-                    .append("]");
+        if (withZone) {
+            if (offset != date.getZone()) {
+                formatted.append("[")
+                        .append(date.getZone().getId())
+                        .append("]");
+            }
         }
 
         return formatted.toString();

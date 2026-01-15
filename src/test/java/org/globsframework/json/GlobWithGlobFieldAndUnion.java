@@ -22,39 +22,41 @@ public class GlobWithGlobFieldAndUnion {
 //        GlobFactoryService.Builder.reset();
 //    }
 
-    public static final String A_GLOB = "{\n" +
-            "  \"_kind\": \"test local type\",\n" +
-            "  \"id\": 1,\n" +
-            "  \"secondType\": {\n" +
-            "    \"subFirst\": {\n" +
-            "      \"data\": \"subFirst Data\",\n" +
-            "      \"parent\": {\n" +
-            "        \"name\": \"subFirst second level\"\n" +
-            "      }\n" +
-            "    }\n" +
-            "  },\n" +
-            "  \"arrayOfUnions\": [\n" +
-            "    {\n" +
-            "      \"subFirst\": {\n" +
-            "        \"data\": \"subFirst array Data\"\n" +
-            "      }\n" +
-            "    },\n" +
-            "    {\n" +
-            "      \"subSecond\": {\n" +
-            "        \"id\": 0,\n" +
-            "        \"value\": 3.1415\n" +
-            "      }\n" +
-            "    }\n" +
-            "  ],\n" +
-            "  \"arrayOfType\": [{\n" +
-            "    \"id\": 1,\n" +
-            "    \"value\": 6.28\n" +
-            "  }],\n" +
-            "  \"simpleType\": {\n" +
-            "    \"id\": 2,\n" +
-            "    \"value\": 12.28\n" +
-            "  }\n" +
-            "}";
+    public static final String A_GLOB = """
+            {
+              "_kind": "test local type",
+              "id": 1,
+              "secondType": {
+                "subFirst": {
+                  "data": "subFirst Data",
+                  "parent": {
+                    "name": "subFirst second level"
+                  }
+                }
+              },
+              "arrayOfUnions": [
+                {
+                  "subFirst": {
+                    "data": "subFirst array Data"
+                  }
+                },
+                null,
+                {
+                  "subSecond": {
+                    "id": 0,
+                    "value": 3.1415
+                  }
+                }
+              ],
+              "arrayOfType": [{
+                "id": 1,
+                "value": 6.28
+              }, null],
+              "simpleType": {
+                "id": 2,
+                "value": 12.28
+              }
+            }""";
 
     public static class LocalType {
         @Required_
@@ -244,10 +246,10 @@ public class GlobWithGlobFieldAndUnion {
                 .set(LocalType.SECOND_TYPE, SubFirstType.TYPE.instantiate().set(SubFirstType.DATA, "subFirst Data")
                         .set(SubFirstType.PARENT, SubFirstType.TYPE.instantiate().set(SubFirstType.NAME, "subFirst second level")))
                 .set(LocalType.ARRAY_OF_UNIONS, new Glob[]{SubFirstType.TYPE.instantiate()
-                        .set(SubFirstType.DATA, "subFirst array Data"), SubSecondType.TYPE.instantiate()
+                        .set(SubFirstType.DATA, "subFirst array Data"), null, SubSecondType.TYPE.instantiate()
                         .set(SubSecondType.ID, 0).set(SubSecondType.VALUE, 3.1415)})
                 .set(LocalType.SIMPLE_TYPE, SubSecondType.TYPE.instantiate().set(SubSecondType.VALUE, 12.28).set(SubSecondType.ID, 2))
-                .set(LocalType.ARRAY_OF_TYPE, new Glob[]{SubSecondType.TYPE.instantiate().set(SubSecondType.VALUE, 6.28).set(SubSecondType.ID, 1)});
+                .set(LocalType.ARRAY_OF_TYPE, new Glob[]{SubSecondType.TYPE.instantiate().set(SubSecondType.VALUE, 6.28).set(SubSecondType.ID, 1), null});
         Gson gson = init();
 
         String toJson = gson.toJson(glob);
@@ -258,7 +260,8 @@ public class GlobWithGlobFieldAndUnion {
         Assert.assertNotNull(glob2);
         Assert.assertEquals("subFirst second level", glob2.get(SubFirstType.NAME));
         Assert.assertEquals("subFirst array Data", glob1.get(LocalType.ARRAY_OF_UNIONS)[0].get(SubFirstType.DATA));
-        Assert.assertEquals(3.1415, glob1.get(LocalType.ARRAY_OF_UNIONS)[1].get(SubSecondType.VALUE), 0.001);
+        Assert.assertNull(glob1.get(LocalType.ARRAY_OF_UNIONS)[1]);
+        Assert.assertEquals(3.1415, glob1.get(LocalType.ARRAY_OF_UNIONS)[2].get(SubSecondType.VALUE), 0.001);
 
         Glob mutableGlob1 = gson.fromJson(A_GLOB, MutableGlob.class);
         Assert.assertEquals("subFirst Data", mutableGlob1.get(LocalType.SECOND_TYPE).get(SubFirstType.DATA));

@@ -210,9 +210,14 @@ public class JsonFieldValueVisitor implements FieldValueVisitor {
             if (value != null) {
                 jsonWriter.beginArray();
                 for (Glob v : value) {
-                    jsonWriter.beginObject();
-                    addGlobAttributes(v);
-                    jsonWriter.endObject();
+                    if (v != null) {
+                        jsonWriter.beginObject();
+                        addGlobAttributes(v);
+                        jsonWriter.endObject();
+                    }
+                    else {
+                        jsonWriter.nullValue();
+                    }
                 }
                 jsonWriter.endArray();
             } else {
@@ -244,12 +249,17 @@ public class JsonFieldValueVisitor implements FieldValueVisitor {
         if (value != null) {
             jsonWriter.beginArray();
             for (Glob v : value) {
-                jsonWriter.beginObject();
-                jsonWriter.name(v.getType().getName());
-                jsonWriter.beginObject();
-                addGlobAttributes(v);
-                jsonWriter.endObject();
-                jsonWriter.endObject();
+                if (v != null) {
+                    jsonWriter.beginObject();
+                    jsonWriter.name(v.getType().getName());
+                    jsonWriter.beginObject();
+                    addGlobAttributes(v);
+                    jsonWriter.endObject();
+                    jsonWriter.endObject();
+                }
+                else {
+                    jsonWriter.nullValue();
+                }
             }
             jsonWriter.endArray();
         } else {
