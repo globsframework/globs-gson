@@ -82,8 +82,8 @@ public class GlobWithGlobFieldAndUnion {
             GlobTypeBuilder globTypeBuilder = GlobTypeBuilderFactory.create("test local type");
             globTypeBuilder.addAnnotation(Required.UNIQUE_GLOB);
             ID = globTypeBuilder.declareIntegerField("id", KeyField.ZERO);
-            SECOND_TYPE = globTypeBuilder.declareGlobUnionField("secondType", new Supplier[]{() -> SubSecondType.TYPE, () -> SubFirstType.TYPE});
-            ARRAY_OF_UNIONS = globTypeBuilder.declareGlobUnionArrayField("arrayOfUnions", new Supplier[]{() -> SubSecondType.TYPE, () -> SubFirstType.TYPE});
+            SECOND_TYPE = globTypeBuilder.declareGlobUnionField("secondType", new Supplier[]{() -> SubFirstType.TYPE, () -> SubSecondType.TYPE});
+            ARRAY_OF_UNIONS = globTypeBuilder.declareGlobUnionArrayField("arrayOfUnions", new Supplier[]{() -> SubFirstType.TYPE, () -> SubSecondType.TYPE});
             ARRAY_OF_TYPE = globTypeBuilder.declareGlobArrayField("arrayOfType", () -> SubSecondType.TYPE);
             SIMPLE_TYPE = globTypeBuilder.declareGlobField("simpleType", () -> SubSecondType.TYPE);
             TYPE = globTypeBuilder.build();

@@ -59,7 +59,7 @@ public class GSonUtilsTest {
     public void encodeDecodeGlobType() {
         String s = GSonUtils.encodeGlobType(LocalType.TYPE);
         System.out.println(s);
-        GlobType type = GSonUtils.decodeGlobType(s, AllJsonAnnotations.RESOLVER, false);
+        GlobType type = GSonUtils.decodeGlobType(s, AllJsonAnnotations.RESOLVER, true);
         Assert.assertTrue(type.getField("id").isKeyField());
         Assert.assertTrue(type.getField("id").hasAnnotation(KeyField.UNIQUE_KEY));
         Assert.assertTrue(type.getField("arrival").hasAnnotation(JsonDateTimeFormat.UNIQUE_KEY));
@@ -70,20 +70,20 @@ public class GSonUtilsTest {
 
     public static class LocalType {
         @Required_
-        public static GlobType TYPE;
+        public static final GlobType TYPE;
 
         @KeyField_
-        public static IntegerField id;
+        public static final IntegerField id;
 
         @AnnotationLevel_1
-        public static StringField name;
+        public static final StringField name;
 
         @JsonDateTimeFormat_(pattern = "yyyy-MM-dd HH:mm:ss", asLocal = true, nullValue = "0000")
         public static DateTimeField arrival;
 
-
         static {
             GlobTypeBuilder globTypeBuilder = GlobTypeBuilderFactory.create("test local type");
+            globTypeBuilder.addAnnotation(Required.UNIQUE_GLOB);
             id = globTypeBuilder.declareIntegerField("id", KeyField.ZERO);
             name = globTypeBuilder.declareStringField("name", Annotation_1.TYPE.instantiate()
                     .set(Annotation_1.sub, Annotation_2.TYPE.instantiate().set(Annotation_2.b, "aa")));
@@ -112,10 +112,6 @@ public class GSonUtilsTest {
             a = typeBuilder.declareStringField("a");
             sub = typeBuilder.declareGlobField("sub", () -> Annotation_2.TYPE);
             TYPE = typeBuilder.build();
-//            GlobTypeLoaderFactory.create(Annotation_1.class)
-//                    .register(GlobCreateFromAnnotation.class, annotation -> TYPE.instantiate()
-//                            .set(sub, Annotation_2.TYPE.instantiate().set(Annotation_2.b, "aa"))).load()
-//            ;
         }
     }
 

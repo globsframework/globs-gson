@@ -381,7 +381,7 @@ public class ChangeSetGsonTest {
         static {
             GlobTypeBuilder globTypeBuilder = GlobTypeBuilderFactory.create("subType");
             UUID = globTypeBuilder.declareStringField("uuid", KeyField.ZERO);
-            SUB_NAME = globTypeBuilder.declareStringField("name");
+            SUB_NAME = globTypeBuilder.declareStringField("subName");
             TYPE = globTypeBuilder.build();
         }
     }
@@ -396,7 +396,7 @@ public class ChangeSetGsonTest {
         public static IntegerField COUNT;
 
         static {
-            GlobTypeBuilder globTypeBuilder = GlobTypeBuilderFactory.create("subType");
+            GlobTypeBuilder globTypeBuilder = GlobTypeBuilderFactory.create("subTypeWWithoutKey");
             UUID = globTypeBuilder.declareStringField("uuid", KeyField.ZERO);
             COUNT = globTypeBuilder.declareIntegerField("count");
             TYPE = globTypeBuilder.build();
