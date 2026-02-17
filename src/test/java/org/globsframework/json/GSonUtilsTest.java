@@ -21,6 +21,8 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
@@ -67,6 +69,25 @@ public class GSonUtilsTest {
         String s2 = GSonUtils.encodeGlobType(type);
     }
 
+    @Test
+    public void decodeArrayWithNull() {
+        final String encode = GSonUtils.encode(new Glob[]{LocalType.create(1), null, LocalType.create(2)}, false);
+        List<Glob> globs = new ArrayList<>();
+        GSonUtils.decodeArray(encode, LocalType.TYPE, globs::add);
+        Assert.assertEquals(3, globs.size());
+        Assert.assertNull(globs.get(1));
+        Assert.assertNotNull(globs.get(0));
+    }
+
+    @Test
+    public void decodeArrayWithNullWithResolver() {
+        final String encode = GSonUtils.encode(new Glob[]{LocalType.create(1), null, LocalType.create(2)}, true);
+        List<Glob> globs = new ArrayList<>();
+        GSonUtils.decodeArray(new StringReader(encode), (s) -> LocalType.TYPE, globs::add);
+        Assert.assertEquals(3, globs.size());
+        Assert.assertNull(globs.get(1));
+        Assert.assertNotNull(globs.get(0));
+    }
 
     public static class LocalType {
         @Required_
@@ -80,6 +101,10 @@ public class GSonUtilsTest {
 
         @JsonDateTimeFormat_(pattern = "yyyy-MM-dd HH:mm:ss", asLocal = true, nullValue = "0000")
         public static DateTimeField arrival;
+
+        public static Glob create(int id) {
+            return TYPE.instantiate().set(LocalType.id, id);
+        }
 
         static {
             GlobTypeBuilder globTypeBuilder = GlobTypeBuilderFactory.create("test local type");

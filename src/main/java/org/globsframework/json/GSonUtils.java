@@ -102,12 +102,19 @@ public class GSonUtils {
         try {
             JsonReader in = new JsonReader(reader);
             in.beginArray();
-            while (in.peek() != JsonToken.END_ARRAY) {
-                in.beginObject();
-                Glob e = GlobGSonDeserializer.readFields(in, globType);
-                consumer.accept(e);
+            JsonToken peek = in.peek();
+            while (peek != JsonToken.END_ARRAY) {
+                if (peek == JsonToken.NULL) {
+                    in.nextNull();
+                    consumer.accept(null);
+                } else {
+                    in.beginObject();
+                    Glob e = GlobGSonDeserializer.readFields(in, globType);
+                    in.endObject();
+                    consumer.accept(e);
+                }
                 count++;
-                in.endObject();
+                peek = in.peek();
             }
             in.endArray();
         } catch (IOException e) {
@@ -460,12 +467,17 @@ public class GSonUtils {
 
             jsonWriter.beginArray();
             for (Glob v : glob) {
-                jsonWriter.beginObject();
-                if (withKind) {
-                    jsonWriter.name(GlobsGson.KIND_NAME).value(v.getType().getName());
+                if (v == null) {
+                    jsonWriter.nullValue();
                 }
-                v.safeAccept(jsonFieldValueVisitor, jsonWriter);
-                jsonWriter.endObject();
+                else {
+                    jsonWriter.beginObject();
+                    if (withKind) {
+                        jsonWriter.name(GlobsGson.KIND_NAME).value(v.getType().getName());
+                    }
+                    v.safeAccept(jsonFieldValueVisitor, jsonWriter);
+                    jsonWriter.endObject();
+                }
             }
             jsonWriter.endArray();
         } catch (IOException e) {

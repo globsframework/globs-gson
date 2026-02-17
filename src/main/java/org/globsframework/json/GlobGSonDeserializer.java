@@ -101,6 +101,7 @@ public class GlobGSonDeserializer {
 
     public static Glob read(JsonReader in, GlobTypeResolver resolver) throws IOException {
         if (in.peek() == JsonToken.NULL) {
+            in.nextNull();
             return null;
         }
         in.beginObject();
@@ -120,6 +121,7 @@ public class GlobGSonDeserializer {
 
     public static Key readKey(JsonReader in, GlobTypeResolver resolver) throws IOException {
         if (in.peek() == JsonToken.NULL) {
+            in.nextNull();
             return null;
         }
         in.beginObject();
