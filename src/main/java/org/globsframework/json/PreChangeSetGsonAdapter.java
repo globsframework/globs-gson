@@ -180,7 +180,7 @@ public class PreChangeSetGsonAdapter extends TypeAdapter<PreChangeSet> {
             for (GlobType type : field.getTargetTypes()) {
                 JsonElement jsonElement = element.getAsJsonObject().get(type.getName());
                 if (jsonElement != null) {
-                    Key key = readKey(element.getAsJsonObject(), type);
+                    Key key = readKey(jsonElement.getAsJsonObject(), type);
                     functions.add(globAccessor -> {
                         fieldSetter.set(field, globAccessor.get(key));
                         return null;
@@ -195,7 +195,7 @@ public class PreChangeSetGsonAdapter extends TypeAdapter<PreChangeSet> {
                 for (GlobType type : field.getTargetTypes()) {
                     JsonElement jsonElement = arrayElements.getAsJsonObject().get(type.getName());
                     if (jsonElement != null) {
-                        Key key = readKey(element.getAsJsonObject(), type);
+                        Key key = readKey(jsonElement.getAsJsonObject(), type);
                         keys.add(key);
                     }
                 }

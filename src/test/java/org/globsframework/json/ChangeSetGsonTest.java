@@ -8,8 +8,11 @@ import org.globsframework.core.metamodel.GlobTypeBuilderFactory;
 import org.globsframework.core.metamodel.annotations.KeyField;
 import org.globsframework.core.metamodel.annotations.KeyField_;
 import org.globsframework.core.metamodel.annotations.Target;
+import org.globsframework.core.metamodel.annotations.Targets;
 import org.globsframework.core.metamodel.fields.GlobArrayField;
+import org.globsframework.core.metamodel.fields.GlobArrayUnionField;
 import org.globsframework.core.metamodel.fields.GlobField;
+import org.globsframework.core.metamodel.fields.GlobUnionField;
 import org.globsframework.core.metamodel.fields.IntegerField;
 import org.globsframework.core.metamodel.fields.StringField;
 import org.globsframework.core.metamodel.impl.DefaultGlobModel;
@@ -21,6 +24,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Set;
+import java.util.function.Supplier;
 
 public class ChangeSetGsonTest {
 
@@ -346,6 +350,49 @@ public class ChangeSetGsonTest {
 
     }
 
+    @Test
+    public void createWithUnionAndUnionArrayFields() {
+        MutableChangeSet changeSet = DefaultChangeSet.createOrdered();
+
+        Glob subForUnion = SubType.TYPE.instantiate().set(SubType.SUB_NAME, "nUnion").set(SubType.UUID, "UNION_1");
+        changeSet.processCreation(subForUnion.getKey(), subForUnion);
+
+        Glob subForArrayUnion = SubType.TYPE.instantiate().set(SubType.SUB_NAME, "nArrayUnion").set(SubType.UUID, "ARRAY_UNION_1");
+        changeSet.processCreation(subForArrayUnion.getKey(), subForArrayUnion);
+
+        Glob master = DummyType.TYPE.instantiate().set(DummyType.UUID, "UUID_1")
+                .set(DummyType.UNION_ELEMENT, subForUnion)
+                .set(DummyType.ARRAY_UNION_ELEMENT, new Glob[]{subForArrayUnion});
+        changeSet.processCreation(master.getKey(), master);
+
+        GlobModel globModel = new DefaultGlobModel(DummyType.TYPE, SubType.TYPE, SubTypeWWithoutKey.TYPE);
+
+        Gson gson = GlobsGson.create(globModel::getType);
+        String jsonChangeSet = gson.toJson(changeSet);
+
+        PreChangeSet preChangeSet = gson.fromJson(jsonChangeSet, PreChangeSet.class);
+
+        ChangeSet actualChangeSet = preChangeSet.resolve(key -> {
+            throw new RuntimeException("Unexpected key " + GlobPrinter.toString(key.asFieldValues()));
+        });
+
+        {
+            Set<Key> created = actualChangeSet.getCreated(DummyType.TYPE);
+            Assert.assertEquals(created.size(), 1);
+            Assert.assertTrue(created.contains(master.getKey()));
+            FieldValues newValues = actualChangeSet.getNewValues(created.iterator().next());
+
+            Glob unionValue = newValues.get(DummyType.UNION_ELEMENT);
+            Assert.assertNotNull(unionValue);
+            Assert.assertEquals(subForUnion.getKey(), unionValue.getKey());
+
+            Glob[] arrayUnionValue = newValues.get(DummyType.ARRAY_UNION_ELEMENT);
+            Assert.assertNotNull(arrayUnionValue);
+            Assert.assertEquals(1, arrayUnionValue.length);
+            Assert.assertEquals(subForArrayUnion.getKey(), arrayUnionValue[0].getKey());
+        }
+    }
+
     public static class DummyType {
         public static GlobType TYPE;
 
@@ -360,12 +407,20 @@ public class ChangeSetGsonTest {
         @Target(SubTypeWWithoutKey.class)
         public static GlobArrayField COUNTS;
 
+        @Targets({SubType.class})
+        public static GlobUnionField UNION_ELEMENT;
+
+        @Targets({SubType.class})
+        public static GlobArrayUnionField ARRAY_UNION_ELEMENT;
+
         static {
             GlobTypeBuilder globTypeBuilder = GlobTypeBuilderFactory.create("dummyType");
             UUID = globTypeBuilder.declareStringField("uuid", KeyField.ZERO);
             NAME = globTypeBuilder.declareStringField("name");
             SUB_ELEMENT = globTypeBuilder.declareGlobField("subElement", () -> SubType.TYPE);
             COUNTS = globTypeBuilder.declareGlobArrayField("counts", () -> SubTypeWWithoutKey.TYPE);
+            UNION_ELEMENT = globTypeBuilder.declareGlobUnionField("unionElement", new Supplier[]{() -> SubType.TYPE});
+            ARRAY_UNION_ELEMENT = globTypeBuilder.declareGlobUnionArrayField("arrayUnionElement", new Supplier[]{() -> SubType.TYPE});
             TYPE = globTypeBuilder.build();
         }
     }

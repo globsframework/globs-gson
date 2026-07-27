@@ -390,7 +390,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
                 jsonWriter.name(name);
                 jsonWriter.value(value.doubleValue());
             } else {
-                if (!getAccessor.isSet(data)) {
+                if (getAccessor.isSet(data)) {
                     jsonWriter.name(name);
                     jsonWriter.nullValue();
                 }
