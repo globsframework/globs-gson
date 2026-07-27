@@ -7,6 +7,7 @@ import org.globsframework.core.metamodel.fields.StringField;
 import org.globsframework.core.model.Glob;
 import org.globsframework.core.model.MutableGlob;
 import org.globsframework.json.annottations.JsonHideValue;
+import org.globsframework.json.field.GlobJsonImpl;
 import org.globsframework.json.field.JsonSerializerServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,6 +30,21 @@ public class CustomTest {
         Assert.assertEquals("{\"custom\":\"TR_AAA\",\"secret\":\"secret\"}", writer.toString());
         // No custom serialisation here
         Assert.assertEquals("{\"_kind\":\"Custom\",\"custom\":\"AAA\",\"secret\":\"****\"}", GSonUtils.encodeHidSensitiveData(glob));
+    }
+
+    // getSerializerHide() uses a different code path (JsonFieldSerializerVisitor.HideStringJsonFieldSerializer)
+    // than GSonUtils.encodeHidSensitiveData() (JsonFieldValueVisitorHideWithWriterSensitiveData) above;
+    // both must mask with the same number of stars.
+    @Test
+    public void hideSensitiveDataViaSerializerService() throws IOException {
+        JsonSerializerServiceImpl jsonSerializerService = new JsonSerializerServiceImpl();
+        GlobJson globJson = new GlobJsonImpl(Custom.TYPE,
+                jsonSerializerService.getSerializerHide(Custom.TYPE),
+                jsonSerializerService.getDeSerializer(Custom.TYPE));
+        Glob glob = Custom.TYPE.instantiate().set(Custom.custom, "AAA").set(Custom.SECRET, "secret");
+        StringWriter writer = new StringWriter();
+        globJson.write(glob, writer);
+        Assert.assertEquals("{\"custom\":\"TR_AAA\",\"secret\":\"****\"}", writer.toString());
     }
 
     static class Custom {

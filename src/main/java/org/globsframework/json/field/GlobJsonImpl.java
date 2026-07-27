@@ -124,6 +124,7 @@ public class GlobJsonImpl implements GlobJson {
                 globs.add(instantiate);
             }
         }
+        jsonReader.endArray();
         return globs.toArray(Glob[]::new);
     }
 

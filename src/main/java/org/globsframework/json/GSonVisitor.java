@@ -78,6 +78,8 @@ public abstract class GSonVisitor implements FieldVisitorWithTwoContext<JsonElem
                     if (jsonArray != null) {
                         value[i] = GlobGSonDeserializer.GSON.toJson(jsonArray);
                     }
+                } else {
+                    value[i] = GlobGSonDeserializer.GSON.toJson(element.getAsJsonPrimitive());
                 }
             } else {
                 value[i] = element.getAsString();

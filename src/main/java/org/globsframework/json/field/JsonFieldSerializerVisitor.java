@@ -697,7 +697,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
             final String value = getAccessor.get(data);
             if (value != null) {
                 jsonWriter.name(field.getName());
-                jsonWriter.value("*****");
+                jsonWriter.value("****");
             } else if (getAccessor.isSet(data)) {
                 jsonWriter.name(field.getName());
                 jsonWriter.nullValue();
@@ -1227,7 +1227,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
                 jsonReader.endObject();
             }
             jsonReader.endArray();
-            mutableGlob.set(field, objs.toArray(Glob[]::new));
+            setAccessor.set(mutableGlob, objs.toArray(Glob[]::new));
         }
     }
 
@@ -1277,7 +1277,8 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
             jsonReader.beginObject();
             String name = jsonReader.nextName();
             if (jsonReader.peek() == JsonToken.NULL) {
-                mutableGlob.set(field, null);
+                jsonReader.nextNull();
+                setAccessor.set(mutableGlob, null);
             }
             else {
                 GlobType globType = field.getTargetType(name);
@@ -1286,7 +1287,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
                 jsonReader.beginObject();
                 deSerializer.deserialize(jsonReader, ch);
                 jsonReader.endObject();
-                mutableGlob.set(field, ch);
+                setAccessor.set(mutableGlob, ch);
             }
             jsonReader.endObject();
         }
