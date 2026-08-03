@@ -64,7 +64,7 @@ public class PreChangeSetGsonAdapter extends TypeAdapter<PreChangeSet> {
         }
         in.endArray();
         return new PreChangeSet() {
-            Map<Key, Glob> local = new HashMap<>();
+            final Map<Key, Glob> local = new HashMap<>();
 
             public ChangeSet resolve(GlobAccessor globAccessor) {
                 jsonReaderVisitor.functions.forEach(g -> g.apply(key -> {
@@ -157,7 +157,7 @@ public class PreChangeSetGsonAdapter extends TypeAdapter<PreChangeSet> {
             }
         }
 
-        public void visitGlobArray(GlobArrayField field, JsonElement element, FieldSetter fieldSetter) throws Exception {
+        public void visitGlobArray(GlobArrayField<?> field, JsonElement element, FieldSetter<?> fieldSetter) throws Exception {
             List<Key> keys = new ArrayList<>();
             for (JsonElement jsonElement : element.getAsJsonArray()) {
                 Key key = readKey(jsonElement.getAsJsonObject(), field.getTargetType());
@@ -176,7 +176,7 @@ public class PreChangeSetGsonAdapter extends TypeAdapter<PreChangeSet> {
             });
         }
 
-        public void visitUnionGlob(GlobUnionField field, JsonElement element, FieldSetter fieldSetter) throws Exception {
+        public void visitUnionGlob(GlobUnionField field, JsonElement element, FieldSetter<?> fieldSetter) throws Exception {
             for (GlobType type : field.getTargetTypes()) {
                 JsonElement jsonElement = element.getAsJsonObject().get(type.getName());
                 if (jsonElement != null) {
@@ -189,7 +189,7 @@ public class PreChangeSetGsonAdapter extends TypeAdapter<PreChangeSet> {
             }
         }
 
-        public void visitUnionGlobArray(GlobArrayUnionField field, JsonElement element, FieldSetter fieldSetter) throws Exception {
+        public void visitUnionGlobArray(GlobArrayUnionField field, JsonElement element, FieldSetter<?> fieldSetter) throws Exception {
             List<Key> keys = new ArrayList<>();
             for (JsonElement arrayElements : element.getAsJsonArray()) {
                 for (GlobType type : field.getTargetTypes()) {
@@ -211,7 +211,7 @@ public class PreChangeSetGsonAdapter extends TypeAdapter<PreChangeSet> {
             });
         }
 
-        public void visitGlob(GlobField field, JsonElement element, FieldSetter fieldSetter) throws Exception {
+        public void visitGlob(GlobField<?> field, JsonElement element, FieldSetter<?> fieldSetter) throws Exception {
             Key key = readKey(element.getAsJsonObject(), field.getTargetType());
             functions.add(globAccessor -> {
                 fieldSetter.set(field, globAccessor.get(key));

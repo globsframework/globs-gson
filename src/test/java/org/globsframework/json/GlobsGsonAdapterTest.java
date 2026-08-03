@@ -451,8 +451,8 @@ public class GlobsGsonAdapterTest {
         DateField date = globTypeBuilder.declareDateField("date");
         DateTimeField dateTime = globTypeBuilder.declareDateTimeField("dateTime");
         BytesField Bytes = globTypeBuilder.declareBytesField("bytes");
-        GlobField globField = globTypeBuilder.declareGlobField("glob", () -> innerType);
-        GlobArrayField globArrayField = globTypeBuilder.declareGlobArrayField("globArray", () -> innerType);
+        GlobField<?> globField = globTypeBuilder.declareGlobField("glob", () -> innerType);
+        GlobArrayField<?> globArrayField = globTypeBuilder.declareGlobArrayField("globArray", () -> innerType);
         GlobArrayUnionField globArrayUnionField = globTypeBuilder.declareGlobUnionArrayField("globArrayUnion",
                 new Supplier[]{() -> innerType, () -> innerType2});
         GlobType globType = globTypeBuilder.build();
@@ -554,8 +554,8 @@ public class GlobsGsonAdapterTest {
         DateField date = globTypeBuilder.declareDateField("date");
         DateTimeField dateTime = globTypeBuilder.declareDateTimeField("dateTime");
         BytesField Bytes = globTypeBuilder.declareBytesField("bytes");
-        GlobField globField = globTypeBuilder.declareGlobField("glob", () -> innerType);
-        GlobArrayField globArrayField = globTypeBuilder.declareGlobArrayField("globArray", () -> innerType);
+        GlobField<?> globField = globTypeBuilder.declareGlobField("glob", () -> innerType);
+        GlobArrayField<?> globArrayField = globTypeBuilder.declareGlobArrayField("globArray", () -> innerType);
         GlobArrayUnionField globArrayUnionField = globTypeBuilder.declareGlobUnionArrayField("globArrayUnion",
                 new Supplier[]{() -> innerType, () -> innerType2});
         GlobType globType = globTypeBuilder.build();

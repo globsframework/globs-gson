@@ -110,7 +110,7 @@ class GlobTypeArrayGsonAdapter extends TypeAdapter<GlobType> {
                         writeField(field, GlobsGson.BYTES_TYPE, out);
                     }
 
-                    public void visitGlob(GlobField field) throws Exception {
+                    public void visitGlob(GlobField<?> field) throws Exception {
                         writeField(field, GlobsGson.GLOB_TYPE, out, jsonWriter -> {
                             try {
                                 jsonWriter.name(GlobsGson.GLOB_TYPE_KIND).value(field.getTargetType().getName());
@@ -120,7 +120,7 @@ class GlobTypeArrayGsonAdapter extends TypeAdapter<GlobType> {
                         });
                     }
 
-                    public void visitGlobArray(GlobArrayField field) throws Exception {
+                    public void visitGlobArray(GlobArrayField<?> field) throws Exception {
                         writeField(field, GlobsGson.GLOB_ARRAY_TYPE, out, jsonWriter -> {
                             try {
                                 jsonWriter.name(GlobsGson.GLOB_TYPE_KIND).value(field.getTargetType().getName());

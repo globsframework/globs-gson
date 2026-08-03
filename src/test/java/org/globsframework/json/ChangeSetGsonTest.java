@@ -402,10 +402,10 @@ public class ChangeSetGsonTest {
         public static StringField NAME;
 
         @Target(SubType.class)
-        public static GlobField SUB_ELEMENT;
+        public static GlobField<SubType> SUB_ELEMENT;
 
         @Target(SubTypeWWithoutKey.class)
-        public static GlobArrayField COUNTS;
+        public static GlobArrayField<SubTypeWWithoutKey> COUNTS;
 
         @Targets({SubType.class})
         public static GlobUnionField UNION_ELEMENT;

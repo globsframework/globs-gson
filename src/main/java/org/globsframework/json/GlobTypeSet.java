@@ -36,11 +36,11 @@ public class GlobTypeSet {
         Field[] fields = globType.getFields();
         for (Field field : fields) {
             field.streamAnnotations().map(Glob::getType).forEach(t -> add(t, types));
-            if (field instanceof GlobArrayField) {
-                add(((GlobArrayField) field).getTargetType(), types);
+            if (field instanceof GlobArrayField<?> arrayField) {
+                add(arrayField.getTargetType(), types);
             }
-            if (field instanceof GlobField) {
-                add(((GlobField) field).getTargetType(), types);
+            if (field instanceof GlobField<?> globField) {
+                add((globField).getTargetType(), types);
             }
             if (field instanceof GlobUnionField) {
                 Collection<GlobType> subType = ((GlobUnionField) field).getTargetTypes();

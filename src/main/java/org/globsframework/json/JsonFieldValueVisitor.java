@@ -166,7 +166,7 @@ public class JsonFieldValueVisitor implements FieldValueVisitor {
         }
     }
 
-    public void visitGlob(GlobField field, Glob value) throws Exception {
+    public void visitGlob(GlobField<?> field, Glob value) throws Exception {
         jsonWriter.name(field.getName());
         if (value != null) {
             jsonWriter.beginObject();
@@ -177,7 +177,7 @@ public class JsonFieldValueVisitor implements FieldValueVisitor {
         }
     }
 
-    public void visitGlobArray(GlobArrayField field, Glob[] value) throws Exception {
+    public void visitGlobArray(GlobArrayField<?> field, Glob[] value) throws Exception {
         if (field.hasAnnotation(JsonAsObject.UNIQUE_KEY)) {
             jsonWriter.name(field.getName());
             jsonWriter.beginObject();

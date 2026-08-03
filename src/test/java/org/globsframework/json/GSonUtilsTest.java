@@ -130,7 +130,7 @@ public class GSonUtilsTest {
         public static StringField a;
 
         @Target(Annotation_2.class)
-        public static GlobField sub;
+        public static GlobField<Annotation_2> sub;
 
         static {
             GlobTypeBuilder typeBuilder = GlobTypeBuilderFactory.create("annotation1");

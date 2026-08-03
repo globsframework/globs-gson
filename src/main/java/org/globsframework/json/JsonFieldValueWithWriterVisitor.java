@@ -162,7 +162,7 @@ public class JsonFieldValueWithWriterVisitor implements FieldValueVisitorWithCon
         }
     }
 
-    public void visitGlob(GlobField field, Glob value, JsonWriter jsonWriter) throws Exception {
+    public void visitGlob(GlobField<?> field, Glob value, JsonWriter jsonWriter) throws Exception {
         jsonWriter.name(field.getName());
         if (value != null) {
             jsonWriter.beginObject();
@@ -173,7 +173,7 @@ public class JsonFieldValueWithWriterVisitor implements FieldValueVisitorWithCon
         }
     }
 
-    public void visitGlobArray(GlobArrayField field, Glob[] value, JsonWriter jsonWriter) throws Exception {
+    public void visitGlobArray(GlobArrayField<?> field, Glob[] value, JsonWriter jsonWriter) throws Exception {
         if (field.hasAnnotation(JsonAsObject.UNIQUE_KEY)) {
             jsonWriter.name(field.getName());
             jsonWriter.beginObject();

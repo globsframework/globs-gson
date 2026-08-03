@@ -75,10 +75,10 @@ public class GlobWithGlobFieldAndUnion {
         public static final GlobArrayUnionField ARRAY_OF_UNIONS;
 
         @Target(SubSecondType.class)
-        public static final GlobArrayField ARRAY_OF_TYPE;
+        public static final GlobArrayField<SubSecondType> ARRAY_OF_TYPE;
 
         @Target(SubSecondType.class)
-        public static final GlobField SIMPLE_TYPE;
+        public static final GlobField<SubSecondType> SIMPLE_TYPE;
 
         static {
             GlobTypeBuilder globTypeBuilder = GlobTypeBuilderFactory.create("test local type");
@@ -102,7 +102,7 @@ public class GlobWithGlobFieldAndUnion {
         public static StringField DATA;
 
         @Target(SubFirstType.class)
-        public static GlobField PARENT;
+        public static GlobField<SubFirstType> PARENT;
 
         static {
             GlobTypeBuilder globTypeBuilder = GlobTypeBuilderFactory.create("subFirst");

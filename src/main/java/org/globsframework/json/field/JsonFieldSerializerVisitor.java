@@ -225,7 +225,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
         jsonFieldDeSerializers[field.getIndex()] = new BytesJsonFieldDeSerializer(setAccessor);
     }
 
-    public void visitGlob(GlobField field) throws Exception {
+    public void visitGlob(GlobField<?> field) throws Exception {
         if (specific(field)) {
             return;
         }
@@ -238,7 +238,7 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
         jsonFieldDeSerializers[field.getIndex()] = new GlobJsonFieldDeSerializer(targetType, jsonFieldDeSerializer, setAccessor);
     }
 
-    public void visitGlobArray(GlobArrayField field) throws Exception {
+    public void visitGlobArray(GlobArrayField<?> field) throws Exception {
         if (specific(field)) {
             return;
         }
@@ -867,10 +867,10 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
 
     private static class GlobJsonFieldSerializer implements JsonFieldSerializer {
         private final GlobGetGlobAccessor getAccessor;
-        private final GlobField field;
+        private final GlobField<?> field;
         private final JsonFieldSerializer jsonFieldSerializer;
 
-        public GlobJsonFieldSerializer(GlobGetGlobAccessor getAccessor, GlobField field, JsonFieldSerializer jsonFieldSerializer) {
+        public GlobJsonFieldSerializer(GlobGetGlobAccessor getAccessor, GlobField<?> field, JsonFieldSerializer jsonFieldSerializer) {
             this.getAccessor = getAccessor;
             this.field = field;
             this.jsonFieldSerializer = jsonFieldSerializer;

@@ -22,13 +22,13 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 
-public class ReadJsonWithReaderFieldVisitor implements FieldVisitorWithTwoContext<FieldSetter, JsonReader> {
+public class ReadJsonWithReaderFieldVisitor implements FieldVisitorWithTwoContext<FieldSetter<?>, JsonReader> {
 
-    public void visitInteger(IntegerField field, FieldSetter mutableGlob, JsonReader jsonReader) throws Exception {
+    public void visitInteger(IntegerField field, FieldSetter<?> mutableGlob, JsonReader jsonReader) throws Exception {
         mutableGlob.set(field, jsonReader.nextInt());
     }
 
-    public void visitIntegerArray(IntegerArrayField field, FieldSetter mutableGlob, JsonReader jsonReader) throws Exception {
+    public void visitIntegerArray(IntegerArrayField field, FieldSetter<?> mutableGlob, JsonReader jsonReader) throws Exception {
         jsonReader.beginArray();
         int[] values = new int[16];
         int count = 0;
@@ -42,11 +42,11 @@ public class ReadJsonWithReaderFieldVisitor implements FieldVisitorWithTwoContex
         mutableGlob.set(field, Arrays.copyOf(values, count));
     }
 
-    public void visitDouble(DoubleField field, FieldSetter mutableGlob, JsonReader jsonReader) throws Exception {
+    public void visitDouble(DoubleField field, FieldSetter<?> mutableGlob, JsonReader jsonReader) throws Exception {
         mutableGlob.set(field, jsonReader.nextDouble());
     }
 
-    public void visitDoubleArray(DoubleArrayField field, FieldSetter mutableGlob, JsonReader jsonReader) throws Exception {
+    public void visitDoubleArray(DoubleArrayField field, FieldSetter<?> mutableGlob, JsonReader jsonReader) throws Exception {
         jsonReader.beginArray();
         double[] values = new double[16];
         int count = 0;
@@ -60,7 +60,7 @@ public class ReadJsonWithReaderFieldVisitor implements FieldVisitorWithTwoContex
         mutableGlob.set(field, Arrays.copyOf(values, count));
     }
 
-    public void visitString(StringField field, FieldSetter mutableGlob, JsonReader jsonReader) throws Exception {
+    public void visitString(StringField field, FieldSetter<?> mutableGlob, JsonReader jsonReader) throws Exception {
         if (field.hasAnnotation(IsJsonContent.UNIQUE_KEY)) {
             JsonElement parse = JsonParser.parseReader(jsonReader);
             if (parse.isJsonArray()) {
@@ -86,7 +86,7 @@ public class ReadJsonWithReaderFieldVisitor implements FieldVisitorWithTwoContex
         }
     }
 
-    public void visitStringArray(StringArrayField field, FieldSetter mutableGlob, JsonReader jsonReader) throws Exception {
+    public void visitStringArray(StringArrayField field, FieldSetter<?> mutableGlob, JsonReader jsonReader) throws Exception {
         jsonReader.beginArray();
         String[] values = new String[16];
         int count = 0;
@@ -113,11 +113,11 @@ public class ReadJsonWithReaderFieldVisitor implements FieldVisitorWithTwoContex
         mutableGlob.set(field, Arrays.copyOf(values, count));
     }
 
-    public void visitBoolean(BooleanField field, FieldSetter mutableGlob, JsonReader jsonReader) throws Exception {
+    public void visitBoolean(BooleanField field, FieldSetter<?> mutableGlob, JsonReader jsonReader) throws Exception {
         mutableGlob.set(field, jsonReader.nextBoolean());
     }
 
-    public void visitBooleanArray(BooleanArrayField field, FieldSetter mutableGlob, JsonReader jsonReader) throws Exception {
+    public void visitBooleanArray(BooleanArrayField field, FieldSetter<?> mutableGlob, JsonReader jsonReader) throws Exception {
         jsonReader.beginArray();
         boolean[] values = new boolean[16];
         int count = 0;
@@ -131,11 +131,11 @@ public class ReadJsonWithReaderFieldVisitor implements FieldVisitorWithTwoContex
         mutableGlob.set(field, Arrays.copyOf(values, count));
     }
 
-    public void visitBigDecimal(BigDecimalField field, FieldSetter mutableGlob, JsonReader jsonReader) throws Exception {
+    public void visitBigDecimal(BigDecimalField field, FieldSetter<?> mutableGlob, JsonReader jsonReader) throws Exception {
         mutableGlob.set(field, new BigDecimal(jsonReader.nextString()));
     }
 
-    public void visitBigDecimalArray(BigDecimalArrayField field, FieldSetter mutableGlob, JsonReader jsonReader) throws Exception {
+    public void visitBigDecimalArray(BigDecimalArrayField field, FieldSetter<?> mutableGlob, JsonReader jsonReader) throws Exception {
         jsonReader.beginArray();
         BigDecimal[] values = new BigDecimal[16];
         int count = 0;
@@ -149,11 +149,11 @@ public class ReadJsonWithReaderFieldVisitor implements FieldVisitorWithTwoContex
         mutableGlob.set(field, Arrays.copyOf(values, count));
     }
 
-    public void visitLong(LongField field, FieldSetter mutableGlob, JsonReader jsonReader) throws Exception {
+    public void visitLong(LongField field, FieldSetter<?> mutableGlob, JsonReader jsonReader) throws Exception {
         mutableGlob.set(field, jsonReader.nextLong());
     }
 
-    public void visitLongArray(LongArrayField field, FieldSetter mutableGlob, JsonReader jsonReader) throws Exception {
+    public void visitLongArray(LongArrayField field, FieldSetter<?> mutableGlob, JsonReader jsonReader) throws Exception {
         jsonReader.beginArray();
         long[] values = new long[16];
         int count = 0;
@@ -167,14 +167,14 @@ public class ReadJsonWithReaderFieldVisitor implements FieldVisitorWithTwoContex
         mutableGlob.set(field, Arrays.copyOf(values, count));
     }
 
-    public void visitDate(DateField field, FieldSetter mutableGlob, JsonReader jsonReader) throws Exception {
+    public void visitDate(DateField field, FieldSetter<?> mutableGlob, JsonReader jsonReader) throws Exception {
         DateTimeFormatter dateConverter = GSonUtils.getCachedDateFormatter(field);
         mutableGlob.set(field, LocalDate.from(dateConverter.parse(jsonReader.nextString())));
     }
 
     // gestion a revoir
 
-    public void visitDateTime(DateTimeField field, FieldSetter mutableGlob, JsonReader jsonReader) throws Exception {
+    public void visitDateTime(DateTimeField field, FieldSetter<?> mutableGlob, JsonReader jsonReader) throws Exception {
         GSonUtils.FormaterForDateTime dateConverter = GSonUtils.getCachedDateTimeFormatter(field);
         String text = jsonReader.nextString();
 //        if (field.hasAnnotation(JsonDateTimeFormatType.UNIQUE_KEY)) {
@@ -192,11 +192,11 @@ public class ReadJsonWithReaderFieldVisitor implements FieldVisitorWithTwoContex
         mutableGlob.set(field, dateConverter.parse(text));
     }
 
-    public void visitBytes(BytesField field, FieldSetter mutableGlob, JsonReader jsonReader) throws Exception {
+    public void visitBytes(BytesField field, FieldSetter<?> mutableGlob, JsonReader jsonReader) throws Exception {
         mutableGlob.set(field, Base64.getDecoder().decode(jsonReader.nextString()));
     }
 
-    public void visitGlob(GlobField field, FieldSetter mutableGlob, JsonReader jsonReader) throws Exception {
+    public void visitGlob(GlobField<?> field, FieldSetter<?> mutableGlob, JsonReader jsonReader) throws Exception {
         jsonReader.beginObject();
         mutableGlob.set(field, readField(jsonReader, field.getTargetType()));
         jsonReader.endObject();
@@ -206,7 +206,7 @@ public class ReadJsonWithReaderFieldVisitor implements FieldVisitorWithTwoContex
         return GlobGSonDeserializer.readFields(jsonReader, type);
     }
 
-    public void visitGlobArray(GlobArrayField field, FieldSetter mutableGlob, JsonReader jsonReader) throws Exception {
+    public void visitGlobArray(GlobArrayField<?> field, FieldSetter<?> mutableGlob, JsonReader jsonReader) throws Exception {
         GlobType targetType = field.getTargetType();
         List<Glob> objs = new ArrayList<>();
         if (field.hasAnnotation(JsonAsObject.UNIQUE_KEY)) {
@@ -244,7 +244,7 @@ public class ReadJsonWithReaderFieldVisitor implements FieldVisitorWithTwoContex
         mutableGlob.set(field, objs.toArray(new Glob[0]));
     }
 
-    public void visitUnionGlob(GlobUnionField field, FieldSetter mutableGlob, JsonReader jsonReader) throws Exception {
+    public void visitUnionGlob(GlobUnionField field, FieldSetter<?> mutableGlob, JsonReader jsonReader) throws Exception {
         jsonReader.beginObject();
         String name = jsonReader.nextName();
         jsonReader.beginObject();
@@ -254,7 +254,7 @@ public class ReadJsonWithReaderFieldVisitor implements FieldVisitorWithTwoContex
         jsonReader.endObject();
     }
 
-    public void visitUnionGlobArray(GlobArrayUnionField field, FieldSetter mutableGlob, JsonReader jsonReader) throws Exception {
+    public void visitUnionGlobArray(GlobArrayUnionField field, FieldSetter<?> mutableGlob, JsonReader jsonReader) throws Exception {
         jsonReader.beginArray();
         Glob[] values = new Glob[16];
         int count = 0;
