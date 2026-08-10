@@ -46,7 +46,7 @@ public class ValueAsAttributeTest {
     public static class Root {
         public static final GlobType TYPE;
 
-        public static final GlobArrayField l1s;
+        public static final GlobArrayField<L1> l1s;
 
         static {
             GlobTypeBuilder builder = GlobTypeBuilderFactory.create("Root");
@@ -61,7 +61,7 @@ public class ValueAsAttributeTest {
 
         public static final StringField name;
 
-        public static final GlobArrayField l2s;
+        public static final GlobArrayField<L2> l2s;
 
         static {
             GlobTypeBuilder builder = GlobTypeBuilderFactory.create("L1");

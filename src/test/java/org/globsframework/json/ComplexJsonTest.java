@@ -82,7 +82,7 @@ public class ComplexJsonTest {
 
         @Target(B.class)
         @JsonAsObject_
-        public static final GlobArrayField b;
+        public static final GlobArrayField<B> b;
 
         static {
             GlobTypeBuilder globTypeBuilder = GlobTypeBuilderFactory.create("A");

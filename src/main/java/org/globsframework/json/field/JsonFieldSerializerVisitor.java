@@ -740,12 +740,12 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
 
     private static class NamedGlobArrayJsonFieldSerializer implements JsonFieldSerializer {
         private final GlobGetGlobArrayAccessor getAccessor;
-        private final GlobArrayField field;
+        private final GlobArrayField<?> field;
         private final StringField typedFieldToUseAsName;
         private final Field fieldValueToUseAsName;
         private final JsonFieldSerializer jsonFieldSerializer;
 
-        public NamedGlobArrayJsonFieldSerializer(GlobGetGlobArrayAccessor getAccessor, GlobArrayField field, StringField typedFieldToUseAsName, Field fieldValueToUseAsName, JsonFieldSerializer jsonFieldSerializer) {
+        public NamedGlobArrayJsonFieldSerializer(GlobGetGlobArrayAccessor getAccessor, GlobArrayField<?> field, StringField typedFieldToUseAsName, Field fieldValueToUseAsName, JsonFieldSerializer jsonFieldSerializer) {
             this.getAccessor = getAccessor;
             this.field = field;
             this.typedFieldToUseAsName = typedFieldToUseAsName;
@@ -811,10 +811,10 @@ public class JsonFieldSerializerVisitor implements FieldVisitor {
 
     private static class GlobArrayJsonFieldSerializer implements JsonFieldSerializer {
         private final GlobGetGlobArrayAccessor getAccessor;
-        private final GlobArrayField field;
+        private final GlobArrayField<?> field;
         private final JsonFieldSerializer jsonFieldSerializer;
 
-        public GlobArrayJsonFieldSerializer(GlobGetGlobArrayAccessor getAccessor, GlobArrayField field, JsonFieldSerializer jsonFieldSerializer) {
+        public GlobArrayJsonFieldSerializer(GlobGetGlobArrayAccessor getAccessor, GlobArrayField<?> field, JsonFieldSerializer jsonFieldSerializer) {
             this.getAccessor = getAccessor;
             this.field = field;
             this.jsonFieldSerializer = jsonFieldSerializer;

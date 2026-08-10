@@ -64,7 +64,7 @@ public class JsonSerializerServiceImpl implements GlobJsonService {
 
         if (globType.hasAnnotation(JsonFlatten.UNIQUE_KEY)) {
             // hopefully no recursivity on this kind of object.
-            final GlobArrayField fieldTargetArray =
+            final GlobArrayField<?> fieldTargetArray =
                     globType.getFieldWithAnnotation(JsonFlattenTargetArray.UNIQUE_KEY)
                             .asGlobArrayField();
             final GlobType targetType = fieldTargetArray.getTargetType();
@@ -188,11 +188,11 @@ public class JsonSerializerServiceImpl implements GlobJsonService {
     }
 
     private static class GlobJsonWithFlattenFieldSerializer implements JsonFieldSerializer {
-        private final GlobArrayField arrayField;
+        private final GlobArrayField<?> arrayField;
         private final StringField flattenFieldAttribute;
         private final JsonFieldSerializer flattenGlobSerializer;
 
-        public GlobJsonWithFlattenFieldSerializer(GlobArrayField arrayField, StringField flattenFieldAttribute,
+        public GlobJsonWithFlattenFieldSerializer(GlobArrayField<?> arrayField, StringField flattenFieldAttribute,
                                                   JsonFieldSerializer flattenGlobSerializer) {
             this.arrayField = arrayField;
             this.flattenFieldAttribute = flattenFieldAttribute;
@@ -214,12 +214,12 @@ public class JsonSerializerServiceImpl implements GlobJsonService {
     private static class GlobJsonWithFlattenFieldDeSerializer implements JsonFieldDeSerializer {
         private final JsonFieldDeSerializer[] deSerializers;
         private final GlobType subType;
-        private final GlobArrayField arrayField;
+        private final GlobArrayField<?> arrayField;
         private final StringField flattenFieldAttribute;
         private final JsonFieldDeSerializer flattenGlobDeSerializer;
 
         public GlobJsonWithFlattenFieldDeSerializer(JsonFieldDeSerializer[] deSerializers,
-                                                    GlobArrayField arrayField, StringField flattenFieldAttribute,
+                                                    GlobArrayField<?> arrayField, StringField flattenFieldAttribute,
                                                     JsonFieldDeSerializer flattenGlobDeSerializer) {
             this.deSerializers = deSerializers;
             this.arrayField = arrayField;
