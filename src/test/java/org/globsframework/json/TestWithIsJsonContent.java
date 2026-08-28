@@ -8,7 +8,6 @@ import org.globsframework.core.metamodel.fields.StringField;
 import org.globsframework.core.model.Glob;
 import org.globsframework.core.model.MutableGlob;
 import org.globsframework.json.annottations.IsJsonContent;
-import org.globsframework.json.annottations.IsJsonContent_;
 import org.globsframework.json.field.JsonSerializerServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
@@ -50,7 +49,6 @@ public class TestWithIsJsonContent {
 
     public static class TypeWithJsonAttr {
         public static GlobType TYPE;
-        @IsJsonContent_
         public static StringField value;
 
         static {
@@ -75,7 +73,6 @@ public class TestWithIsJsonContent {
 
     public static class TypeWithJsonArrayAttr {
         public static GlobType TYPE;
-        @IsJsonContent_
         public static StringArrayField values;
 
         static {

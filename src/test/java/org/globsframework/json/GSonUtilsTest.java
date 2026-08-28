@@ -3,7 +3,8 @@ package org.globsframework.json;
 import org.globsframework.core.metamodel.GlobType;
 import org.globsframework.core.metamodel.GlobTypeBuilder;
 import org.globsframework.core.metamodel.GlobTypeBuilderFactory;
-import org.globsframework.core.metamodel.annotations.*;
+import org.globsframework.core.metamodel.annotations.KeyField;
+import org.globsframework.core.metamodel.annotations.Required;
 import org.globsframework.core.metamodel.fields.DateTimeField;
 import org.globsframework.core.metamodel.fields.GlobField;
 import org.globsframework.core.metamodel.fields.IntegerField;
@@ -11,20 +12,15 @@ import org.globsframework.core.metamodel.fields.StringField;
 import org.globsframework.core.model.Glob;
 import org.globsframework.json.annottations.AllJsonAnnotations;
 import org.globsframework.json.annottations.JsonDateTimeFormat;
-import org.globsframework.json.annottations.JsonDateTimeFormat_;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 public class GSonUtilsTest {
 
@@ -90,16 +86,12 @@ public class GSonUtilsTest {
     }
 
     public static class LocalType {
-        @Required_
         public static final GlobType TYPE;
 
-        @KeyField_
         public static final IntegerField id;
 
-        @AnnotationLevel_1
         public static final StringField name;
 
-        @JsonDateTimeFormat_(pattern = "yyyy-MM-dd HH:mm:ss", asLocal = true, nullValue = "0000")
         public static DateTimeField arrival;
 
         public static Glob create(int id) {
@@ -118,18 +110,11 @@ public class GSonUtilsTest {
     }
 
 
-    @Retention(RUNTIME)
-    @java.lang.annotation.Target({ElementType.FIELD})
-    public @interface AnnotationLevel_1 {
-        GlobType TYPE = Annotation_1.TYPE;
-    }
-
     public static class Annotation_1 {
         public static GlobType TYPE;
 
         public static StringField a;
 
-        @Target(Annotation_2.class)
         public static GlobField<Annotation_2> sub;
 
         static {
@@ -146,7 +131,7 @@ public class GSonUtilsTest {
         public static final StringField b;
 
         static {
-            GlobTypeBuilder typeBuilder =  GlobTypeBuilderFactory.create("annotation2");
+            GlobTypeBuilder typeBuilder = GlobTypeBuilderFactory.create("annotation2");
             b = typeBuilder.declareStringField("b");
             TYPE = typeBuilder.build();
         }

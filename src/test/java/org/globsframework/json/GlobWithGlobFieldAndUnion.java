@@ -5,7 +5,9 @@ import org.globsframework.core.metamodel.GlobModel;
 import org.globsframework.core.metamodel.GlobType;
 import org.globsframework.core.metamodel.GlobTypeBuilder;
 import org.globsframework.core.metamodel.GlobTypeBuilderFactory;
-import org.globsframework.core.metamodel.annotations.*;
+import org.globsframework.core.metamodel.annotations.AllCoreAnnotations;
+import org.globsframework.core.metamodel.annotations.KeyField;
+import org.globsframework.core.metamodel.annotations.Required;
 import org.globsframework.core.metamodel.fields.*;
 import org.globsframework.core.metamodel.impl.DefaultGlobModel;
 import org.globsframework.core.model.Glob;
@@ -62,22 +64,16 @@ public class GlobWithGlobFieldAndUnion {
             }""";
 
     public static class LocalType {
-        @Required_
         public static final GlobType TYPE;
 
-        @KeyField_
         public static final IntegerField ID;
 
-        @Targets({SubSecondType.class, SubFirstType.class})
         public static final GlobUnionField SECOND_TYPE;
 
-        @Targets({SubSecondType.class, SubFirstType.class})
         public static final GlobArrayUnionField ARRAY_OF_UNIONS;
 
-        @Target(SubSecondType.class)
         public static final GlobArrayField<SubSecondType> ARRAY_OF_TYPE;
 
-        @Target(SubSecondType.class)
         public static final GlobField<SubSecondType> SIMPLE_TYPE;
 
         static {
@@ -93,15 +89,12 @@ public class GlobWithGlobFieldAndUnion {
     }
 
     public static class SubFirstType {
-        @Required_
         public static final GlobType TYPE;
 
-        @KeyField_
         public static StringField NAME;
 
         public static StringField DATA;
 
-        @Target(SubFirstType.class)
         public static GlobField<SubFirstType> PARENT;
 
         static {
@@ -115,7 +108,6 @@ public class GlobWithGlobFieldAndUnion {
     }
 
     public static class SubSecondType {
-        @Required_
         public static final GlobType TYPE;
 
         public static IntegerField ID;
@@ -138,6 +130,73 @@ public class GlobWithGlobFieldAndUnion {
         String json = gson.toJson(LocalType.TYPE);
 
         assertEquivalent("{\n" +
+                         "  \"kind\": \"test local type\",\n" +
+                         "  \"fields\": [\n" +
+                         "    {\n" +
+                         "      \"name\": \"id\",\n" +
+                         "      \"type\": \"int\",\n" +
+                         "      \"annotations\": [\n" +
+                         "        {\n" +
+                         "          \"_kind\": \"KeyField\",\n" +
+                         "          \"index\": 0\n" +
+                         "        }\n" +
+                         "      ]\n" +
+                         "    },\n" +
+                         "    {\n" +
+                         "      \"name\": \"secondType\",\n" +
+                         "      \"type\": \"globUnion\",\n" +
+                         "      \"kinds\": [\n" +
+                         "        \"subFirst\",\n" +
+                         "        \"subSecond\"\n" +
+                         "      ]\n" +
+                         "    },\n" +
+                         "    {\n" +
+                         "      \"name\": \"arrayOfUnions\",\n" +
+                         "      \"type\": \"globUnionArray\",\n" +
+                         "      \"kinds\": [\n" +
+                         "        \"subFirst\",\n" +
+                         "        \"subSecond\"\n" +
+                         "      ]\n" +
+                         "    },\n" +
+                         "    {\n" +
+                         "      \"name\": \"arrayOfType\",\n" +
+                         "      \"type\": \"globArray\",\n" +
+                         "      \"kind\": \"subSecond\"\n" +
+                         "    },\n" +
+                         "    {\n" +
+                         "      \"name\": \"simpleType\",\n" +
+                         "      \"type\": \"glob\",\n" +
+                         "      \"kind\": \"subSecond\"\n" +
+                         "    }\n" +
+                         "  ],\n" +
+                         "  \"annotations\": [\n" +
+                         "    {\n" +
+                         "      \"_kind\": \"Required\"\n" +
+                         "    }\n" +
+                         "  ]\n" +
+                         "}", json);
+    }
+
+    private Gson init(GlobType... types) {
+        GlobModel globTypes = new DefaultGlobModel(new DefaultGlobModel(AllCoreAnnotations.MODEL, types), LocalType.TYPE, SubFirstType.TYPE, SubSecondType.TYPE, IsJsonContent.TYPE);
+        return GlobsGson.create(globTypes::getType);
+    }
+
+    @Test
+    public void readWriteGlobType() throws Exception {
+        Gson gson = init();
+        String json = gson.toJson(LocalType.TYPE);
+        GlobType type = gson.fromJson(json, GlobType.class);
+        Assert.assertEquals(LocalType.TYPE.getName(), type.getName());
+        Assert.assertEquals(LocalType.TYPE.getFieldCount(), type.getFieldCount());
+        Assert.assertEquals(json, gson.toJson(type));
+    }
+
+    @Test
+    public void readNewFormat() {
+        Gson gson = init();
+        String newFormat =
+                "{\n" +
                 "  \"kind\": \"test local type\",\n" +
                 "  \"fields\": [\n" +
                 "    {\n" +
@@ -182,74 +241,7 @@ public class GlobWithGlobFieldAndUnion {
                 "      \"_kind\": \"Required\"\n" +
                 "    }\n" +
                 "  ]\n" +
-                "}", json);
-    }
-
-    private Gson init(GlobType... types) {
-        GlobModel globTypes = new DefaultGlobModel(new DefaultGlobModel(AllCoreAnnotations.MODEL, types), LocalType.TYPE, SubFirstType.TYPE, SubSecondType.TYPE, IsJsonContent.TYPE);
-        return GlobsGson.create(globTypes::getType);
-    }
-
-    @Test
-    public void readWriteGlobType() throws Exception {
-        Gson gson = init();
-        String json = gson.toJson(LocalType.TYPE);
-        GlobType type = gson.fromJson(json, GlobType.class);
-        Assert.assertEquals(LocalType.TYPE.getName(), type.getName());
-        Assert.assertEquals(LocalType.TYPE.getFieldCount(), type.getFieldCount());
-        Assert.assertEquals(json, gson.toJson(type));
-    }
-
-    @Test
-    public void readNewFormat() {
-        Gson gson = init();
-        String newFormat =
-                "{\n" +
-                        "  \"kind\": \"test local type\",\n" +
-                        "  \"fields\": [\n" +
-                        "    {\n" +
-                        "      \"name\": \"id\",\n" +
-                        "      \"type\": \"int\",\n" +
-                        "      \"annotations\": [\n" +
-                        "        {\n" +
-                        "          \"_kind\": \"KeyField\",\n" +
-                        "          \"index\": 0\n" +
-                        "        }\n" +
-                        "      ]\n" +
-                        "    },\n" +
-                        "    {\n" +
-                        "      \"name\": \"secondType\",\n" +
-                        "      \"type\": \"globUnion\",\n" +
-                        "      \"kinds\": [\n" +
-                        "        \"subFirst\",\n" +
-                        "        \"subSecond\"\n" +
-                        "      ]\n" +
-                        "    },\n" +
-                        "    {\n" +
-                        "      \"name\": \"arrayOfUnions\",\n" +
-                        "      \"type\": \"globUnionArray\",\n" +
-                        "      \"kinds\": [\n" +
-                        "        \"subFirst\",\n" +
-                        "        \"subSecond\"\n" +
-                        "      ]\n" +
-                        "    },\n" +
-                        "    {\n" +
-                        "      \"name\": \"arrayOfType\",\n" +
-                        "      \"type\": \"globArray\",\n" +
-                        "      \"kind\": \"subSecond\"\n" +
-                        "    },\n" +
-                        "    {\n" +
-                        "      \"name\": \"simpleType\",\n" +
-                        "      \"type\": \"glob\",\n" +
-                        "      \"kind\": \"subSecond\"\n" +
-                        "    }\n" +
-                        "  ],\n" +
-                        "  \"annotations\": [\n" +
-                        "    {\n" +
-                        "      \"_kind\": \"Required\"\n" +
-                        "    }\n" +
-                        "  ]\n" +
-                        "}";
+                "}";
         GlobType type = gson.fromJson(newFormat, GlobType.class);
         String json = gson.toJson(type);
         Assert.assertEquals(gson.toJson(LocalType.TYPE), json);

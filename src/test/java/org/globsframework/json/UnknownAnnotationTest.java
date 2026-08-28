@@ -7,7 +7,6 @@ import org.globsframework.core.metamodel.GlobType;
 import org.globsframework.core.metamodel.GlobTypeBuilder;
 import org.globsframework.core.metamodel.GlobTypeBuilderFactory;
 import org.globsframework.core.metamodel.annotations.KeyField;
-import org.globsframework.core.metamodel.annotations.KeyField_;
 import org.globsframework.core.metamodel.fields.StringField;
 import org.globsframework.core.model.KeyBuilder;
 import org.junit.Test;
@@ -65,7 +64,6 @@ public class UnknownAnnotationTest {
     public static class Ann1 {
         public static final GlobType TYPE;
 
-        @KeyField_
         public static final StringField UUID;
 
         public static final StringField SOME_DATA;

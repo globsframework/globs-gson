@@ -124,6 +124,35 @@ synchronization, date formatters are cached in `CACHE_DATE` / `CACHE_DATE_TIME` 
 `strictIso8601` options, and the field-indexed serializer arrays in `JsonSerializerServiceImpl` replace
 per-field lookups. Prefer keeping allocations out of these paths.
 
+### Core callers were tried on `JsonSerializerServiceImpl`, and reverted (2026-08-21)
+
+globs-bin-serialisation and globs-grpc drive their per-field leaves through a core *caller*
+(`FromGlobCaller` / `ToGlobCaller`, `org.globsframework.core.model.caller`): a generated class holds each leaf
+in a `static final` and unrolls the loop, so every field is a monomorphic call instead of the one megamorphic
+call site a loop over a table of closures gives. The same was implemented here for the `GlobJsonService` path
+only — both composites of `JsonSerializerServiceImpl`, a `call` written out in each of the ~43 leaves of
+`JsonFieldSerializerVisitor`, a `NameKeySource` translating each JSON name into a field index on the read
+side — and it was **reverted after measuring**. Don't redo it without new numbers.
+
+Measured in separate JVMs (no profile pollution), 14-field type, 200k encodes/decodes, best of 6, against
+globs-generate's real ASM services:
+
+| | write | read |
+| --- | --- | --- |
+| loop (today) | 208-215 ms | 211-223 ms |
+| caller | 208-218 ms | 235-241 ms |
+
+The write side is a wash and the read side is ~10-13% **slower**, stable over three runs. The reason is that
+JSON is not TLV: the cost of reading is Gson's tokenizer and the strings it builds, not the dispatch, and a
+caller adds a `KeySource` allocation per object plus one call per name where the loop already does a plain
+array index by field index. `-Dglobs.caller.toGlob` being a process-wide flag, an application turning it on
+for binser or grpc would have paid that here without knowing.
+
+Two things that came out of the exercise and would still hold if it were retried: a field with a registered
+`ToStringFieldJsonSerializer` cannot be caller-driven on the write side (it serializes from the whole Glob,
+where a caller only hands out the value), and a `JsonFlatten` type's composites cannot either (they write and
+read names the type has no field for).
+
 ## Tests
 
 JUnit 4 (`org.junit.Test` / `Assert`). Test `GlobType`s are declared inline as static nested classes,

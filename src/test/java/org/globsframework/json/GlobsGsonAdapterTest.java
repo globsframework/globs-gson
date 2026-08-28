@@ -3,28 +3,30 @@ package org.globsframework.json;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import org.globsframework.core.metamodel.*;
-import org.globsframework.core.metamodel.annotations.*;
+import org.globsframework.core.metamodel.GlobModel;
+import org.globsframework.core.metamodel.GlobType;
+import org.globsframework.core.metamodel.GlobTypeBuilder;
+import org.globsframework.core.metamodel.GlobTypeBuilderFactory;
+import org.globsframework.core.metamodel.annotations.AllCoreAnnotations;
+import org.globsframework.core.metamodel.annotations.KeyField;
+import org.globsframework.core.metamodel.annotations.Required;
 import org.globsframework.core.metamodel.fields.*;
 import org.globsframework.core.metamodel.impl.DefaultGlobModel;
 import org.globsframework.core.metamodel.impl.DefaultGlobTypeBuilder;
 import org.globsframework.core.model.Glob;
 import org.globsframework.core.model.Key;
 import org.globsframework.core.model.MutableGlob;
-import org.globsframework.json.annottations.IsJsonContent_;
 import org.globsframework.json.annottations.IsJsonContent;
 import org.globsframework.json.field.JsonSerializerServiceImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.print.attribute.standard.MediaSize;
 import java.io.*;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
@@ -40,17 +42,12 @@ public class GlobsGsonAdapterTest {
     public static final String A_GLOB = "{\"_kind\":\"test local type\",\"id\":1,\"a different name\":\"name 1\",\"data\":{\"sub\":\"aaa\"},\"value\":3.14159}";
 
     public static class LocalType {
-        @Required_
         public static GlobType TYPE;
 
-        @KeyField_
         public static IntegerField ID;
 
-        @KeyField_
-        @FieldName_("a different name")
         public static StringField NAME;
 
-        @IsJsonContent_()
         public static StringField DATA;
 
         public static DoubleField VALUE;
@@ -195,11 +192,11 @@ public class GlobsGsonAdapterTest {
         Gson gson = init();
 
         String toJson = "{\n" +
-                "  \"_kind\": \"test local type\",\n" +
-                "  \"id\": 1,\n" +
-                "  \"a different name\": null,\n" +
-                "  \"value\": null\n" +
-                "}";
+                        "  \"_kind\": \"test local type\",\n" +
+                        "  \"id\": 1,\n" +
+                        "  \"a different name\": null,\n" +
+                        "  \"value\": null\n" +
+                        "}";
         Glob decoded = gson.fromJson(toJson, Glob.class);
         Assert.assertNull(decoded.get(LocalType.NAME));
         Assert.assertNull(decoded.get(LocalType.VALUE));
@@ -256,168 +253,168 @@ public class GlobsGsonAdapterTest {
     }
 
     public static final String ALL_WITH_KIND_IN_THE_MIDDLE = "{\n" +
-            "  \"int\": 12,\n" +
-            "  \"intArray\": [\n" +
-            "    0,\n" +
-            "    1,\n" +
-            "    2,\n" +
-            "    3,\n" +
-            "    4,\n" +
-            "    5,\n" +
-            "    6,\n" +
-            "    7,\n" +
-            "    8,\n" +
-            "    9,\n" +
-            "    10,\n" +
-            "    11,\n" +
-            "    12,\n" +
-            "    13,\n" +
-            "    14,\n" +
-            "    15,\n" +
-            "    16,\n" +
-            "    17,\n" +
-            "    18,\n" +
-            "    19,\n" +
-            "    20,\n" +
-            "    21,\n" +
-            "    22,\n" +
-            "    23,\n" +
-            "    24,\n" +
-            "    25,\n" +
-            "    26,\n" +
-            "    27,\n" +
-            "    28,\n" +
-            "    29,\n" +
-            "    30,\n" +
-            "    31,\n" +
-            "    32,\n" +
-            "    33\n" +
-            "  ],\n" +
-            "  \"boolean\": true,\n" +
-            "  \"booleanArray\": [\n" +
-            "    true,\n" +
-            "    false,\n" +
-            "    true\n" +
-            "  ],\n" +
-            "  \"String\": \"a string\",\n" +
-            "  \"StringArray\": [\n" +
-            "    \"un\",\n" +
-            "    \"deux\",\n" +
-            "    \"trois\"\n" +
-            "  ],\n" +
-            "  \"JsonObjectString\": {\n" +
-            "    \"arg1\": \"vale1\",\n" +
-            "    \"v\": 2\n" +
-            "  },\n" +
-            "  \"_kind\": \"AllType\",\n" +
-            "  \"JsonObjectStringArray\": [\n" +
-            "    {\n" +
-            "      \"arg1\": \"value1\",\n" +
-            "      \"v\": 2\n" +
-            "    },\n" +
-            "    {\n" +
-            "      \"arg1\": \"value3\",\n" +
-            "      \"v\": 3\n" +
-            "    }\n" +
-            "  ],\n" +
-            "  \"JsonArrayString\": [\n" +
-            "    \"a\",\n" +
-            "    \"b\"\n" +
-            "  ],\n" +
-            "  \"JsonArrayStringArray\": [\n" +
-            "    [\n" +
-            "      \"a\",\n" +
-            "      \"b\"\n" +
-            "    ],\n" +
-            "    [\n" +
-            "      \"a\",\n" +
-            "      \"b\"\n" +
-            "    ]\n" +
-            "  ],\n" +
-            "  \"long\": 2,\n" +
-            "  \"longArray\": [\n" +
-            "    0,\n" +
-            "    1,\n" +
-            "    2,\n" +
-            "    3,\n" +
-            "    4,\n" +
-            "    5,\n" +
-            "    6,\n" +
-            "    7,\n" +
-            "    8,\n" +
-            "    9,\n" +
-            "    10,\n" +
-            "    11,\n" +
-            "    12,\n" +
-            "    13,\n" +
-            "    14,\n" +
-            "    15,\n" +
-            "    16,\n" +
-            "    17,\n" +
-            "    18,\n" +
-            "    19,\n" +
-            "    20,\n" +
-            "    21,\n" +
-            "    22,\n" +
-            "    23,\n" +
-            "    24,\n" +
-            "    25,\n" +
-            "    26,\n" +
-            "    27,\n" +
-            "    28,\n" +
-            "    29,\n" +
-            "    30,\n" +
-            "    31,\n" +
-            "    32,\n" +
-            "    33,\n" +
-            "    34,\n" +
-            "    35,\n" +
-            "    36,\n" +
-            "    37,\n" +
-            "    38,\n" +
-            "    39,\n" +
-            "    40,\n" +
-            "    41,\n" +
-            "    42,\n" +
-            "    43,\n" +
-            "    44,\n" +
-            "    45,\n" +
-            "    46,\n" +
-            "    47,\n" +
-            "    48,\n" +
-            "    49\n" +
-            "  ],\n" +
-            "  \"bigDecimal\": 2.2,\n" +
-            "  \"bigDecimalArray\": [\n" +
-            "    2.2,\n" +
-            "    4.2\n" +
-            "  ],\n" +
-            "  \"double\": 3.1415,\n" +
-            "  \"doubleArray\": [\n" +
-            "    3.3,\n" +
-            "    4.4,\n" +
-            "    5.5\n" +
-            "  ],\n" +
-            "  \"date\": \"2018-02-04\",\n" +
-            "  \"dateTime\": \"2018-02-04T15:45:34.000001+01:00[Europe/Paris]\",\n" +
-            "  \"bytes\": \"AwQ\\u003d\"\n," +
-            "  \"glob\":{\"value\":3.0,\"date\":17000}," +
-            "  \"globArray\":[{\"value\":3.0,\"date\":17000},{\"value\":2.8,\"date\":17001},{\"value\":2.7,\"date\":17002}]," +
-            "  \"globArrayUnion\": [\n" +
-            "    {\n" +
-            "      \"histo\": {\n" +
-            "        \"value\": 3.0,\n" +
-            "        \"date\": 17000\n" +
-            "      }\n" +
-            "    },\n" +
-            "    {\n" +
-            "      \"histo2\": {\n" +
-            "        \"value2\": 2.8,\n" +
-            "        \"date2\": 17001\n" +
-            "      }\n" +
-            "    }\n" +
-            "  ]" +
-            "}";
+                                                             "  \"int\": 12,\n" +
+                                                             "  \"intArray\": [\n" +
+                                                             "    0,\n" +
+                                                             "    1,\n" +
+                                                             "    2,\n" +
+                                                             "    3,\n" +
+                                                             "    4,\n" +
+                                                             "    5,\n" +
+                                                             "    6,\n" +
+                                                             "    7,\n" +
+                                                             "    8,\n" +
+                                                             "    9,\n" +
+                                                             "    10,\n" +
+                                                             "    11,\n" +
+                                                             "    12,\n" +
+                                                             "    13,\n" +
+                                                             "    14,\n" +
+                                                             "    15,\n" +
+                                                             "    16,\n" +
+                                                             "    17,\n" +
+                                                             "    18,\n" +
+                                                             "    19,\n" +
+                                                             "    20,\n" +
+                                                             "    21,\n" +
+                                                             "    22,\n" +
+                                                             "    23,\n" +
+                                                             "    24,\n" +
+                                                             "    25,\n" +
+                                                             "    26,\n" +
+                                                             "    27,\n" +
+                                                             "    28,\n" +
+                                                             "    29,\n" +
+                                                             "    30,\n" +
+                                                             "    31,\n" +
+                                                             "    32,\n" +
+                                                             "    33\n" +
+                                                             "  ],\n" +
+                                                             "  \"boolean\": true,\n" +
+                                                             "  \"booleanArray\": [\n" +
+                                                             "    true,\n" +
+                                                             "    false,\n" +
+                                                             "    true\n" +
+                                                             "  ],\n" +
+                                                             "  \"String\": \"a string\",\n" +
+                                                             "  \"StringArray\": [\n" +
+                                                             "    \"un\",\n" +
+                                                             "    \"deux\",\n" +
+                                                             "    \"trois\"\n" +
+                                                             "  ],\n" +
+                                                             "  \"JsonObjectString\": {\n" +
+                                                             "    \"arg1\": \"vale1\",\n" +
+                                                             "    \"v\": 2\n" +
+                                                             "  },\n" +
+                                                             "  \"_kind\": \"AllType\",\n" +
+                                                             "  \"JsonObjectStringArray\": [\n" +
+                                                             "    {\n" +
+                                                             "      \"arg1\": \"value1\",\n" +
+                                                             "      \"v\": 2\n" +
+                                                             "    },\n" +
+                                                             "    {\n" +
+                                                             "      \"arg1\": \"value3\",\n" +
+                                                             "      \"v\": 3\n" +
+                                                             "    }\n" +
+                                                             "  ],\n" +
+                                                             "  \"JsonArrayString\": [\n" +
+                                                             "    \"a\",\n" +
+                                                             "    \"b\"\n" +
+                                                             "  ],\n" +
+                                                             "  \"JsonArrayStringArray\": [\n" +
+                                                             "    [\n" +
+                                                             "      \"a\",\n" +
+                                                             "      \"b\"\n" +
+                                                             "    ],\n" +
+                                                             "    [\n" +
+                                                             "      \"a\",\n" +
+                                                             "      \"b\"\n" +
+                                                             "    ]\n" +
+                                                             "  ],\n" +
+                                                             "  \"long\": 2,\n" +
+                                                             "  \"longArray\": [\n" +
+                                                             "    0,\n" +
+                                                             "    1,\n" +
+                                                             "    2,\n" +
+                                                             "    3,\n" +
+                                                             "    4,\n" +
+                                                             "    5,\n" +
+                                                             "    6,\n" +
+                                                             "    7,\n" +
+                                                             "    8,\n" +
+                                                             "    9,\n" +
+                                                             "    10,\n" +
+                                                             "    11,\n" +
+                                                             "    12,\n" +
+                                                             "    13,\n" +
+                                                             "    14,\n" +
+                                                             "    15,\n" +
+                                                             "    16,\n" +
+                                                             "    17,\n" +
+                                                             "    18,\n" +
+                                                             "    19,\n" +
+                                                             "    20,\n" +
+                                                             "    21,\n" +
+                                                             "    22,\n" +
+                                                             "    23,\n" +
+                                                             "    24,\n" +
+                                                             "    25,\n" +
+                                                             "    26,\n" +
+                                                             "    27,\n" +
+                                                             "    28,\n" +
+                                                             "    29,\n" +
+                                                             "    30,\n" +
+                                                             "    31,\n" +
+                                                             "    32,\n" +
+                                                             "    33,\n" +
+                                                             "    34,\n" +
+                                                             "    35,\n" +
+                                                             "    36,\n" +
+                                                             "    37,\n" +
+                                                             "    38,\n" +
+                                                             "    39,\n" +
+                                                             "    40,\n" +
+                                                             "    41,\n" +
+                                                             "    42,\n" +
+                                                             "    43,\n" +
+                                                             "    44,\n" +
+                                                             "    45,\n" +
+                                                             "    46,\n" +
+                                                             "    47,\n" +
+                                                             "    48,\n" +
+                                                             "    49\n" +
+                                                             "  ],\n" +
+                                                             "  \"bigDecimal\": 2.2,\n" +
+                                                             "  \"bigDecimalArray\": [\n" +
+                                                             "    2.2,\n" +
+                                                             "    4.2\n" +
+                                                             "  ],\n" +
+                                                             "  \"double\": 3.1415,\n" +
+                                                             "  \"doubleArray\": [\n" +
+                                                             "    3.3,\n" +
+                                                             "    4.4,\n" +
+                                                             "    5.5\n" +
+                                                             "  ],\n" +
+                                                             "  \"date\": \"2018-02-04\",\n" +
+                                                             "  \"dateTime\": \"2018-02-04T15:45:34.000001+01:00[Europe/Paris]\",\n" +
+                                                             "  \"bytes\": \"AwQ\\u003d\"\n," +
+                                                             "  \"glob\":{\"value\":3.0,\"date\":17000}," +
+                                                             "  \"globArray\":[{\"value\":3.0,\"date\":17000},{\"value\":2.8,\"date\":17001},{\"value\":2.7,\"date\":17002}]," +
+                                                             "  \"globArrayUnion\": [\n" +
+                                                             "    {\n" +
+                                                             "      \"histo\": {\n" +
+                                                             "        \"value\": 3.0,\n" +
+                                                             "        \"date\": 17000\n" +
+                                                             "      }\n" +
+                                                             "    },\n" +
+                                                             "    {\n" +
+                                                             "      \"histo2\": {\n" +
+                                                             "        \"value2\": 2.8,\n" +
+                                                             "        \"date2\": 17001\n" +
+                                                             "      }\n" +
+                                                             "    }\n" +
+                                                             "  ]" +
+                                                             "}";
 
     @Test
     public void readAllFieldType() {

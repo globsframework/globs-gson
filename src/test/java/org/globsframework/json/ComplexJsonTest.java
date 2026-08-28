@@ -4,7 +4,6 @@ import junit.framework.Assert;
 import org.globsframework.core.metamodel.GlobType;
 import org.globsframework.core.metamodel.GlobTypeBuilder;
 import org.globsframework.core.metamodel.GlobTypeBuilderFactory;
-import org.globsframework.core.metamodel.annotations.Target;
 import org.globsframework.core.metamodel.fields.GlobArrayField;
 import org.globsframework.core.metamodel.fields.StringField;
 import org.globsframework.core.model.Glob;
@@ -80,8 +79,6 @@ public class ComplexJsonTest {
 
         public static final StringField a;
 
-        @Target(B.class)
-        @JsonAsObject_
         public static final GlobArrayField<B> b;
 
         static {
@@ -95,7 +92,6 @@ public class ComplexJsonTest {
     public static class B {
         public static GlobType TYPE;
 
-        @JsonValueAsField_
         public static StringField name;
 
         public static StringField otherField;

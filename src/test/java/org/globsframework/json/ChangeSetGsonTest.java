@@ -6,9 +6,6 @@ import org.globsframework.core.metamodel.GlobType;
 import org.globsframework.core.metamodel.GlobTypeBuilder;
 import org.globsframework.core.metamodel.GlobTypeBuilderFactory;
 import org.globsframework.core.metamodel.annotations.KeyField;
-import org.globsframework.core.metamodel.annotations.KeyField_;
-import org.globsframework.core.metamodel.annotations.Target;
-import org.globsframework.core.metamodel.annotations.Targets;
 import org.globsframework.core.metamodel.fields.GlobArrayField;
 import org.globsframework.core.metamodel.fields.GlobArrayUnionField;
 import org.globsframework.core.metamodel.fields.GlobField;
@@ -396,21 +393,16 @@ public class ChangeSetGsonTest {
     public static class DummyType {
         public static GlobType TYPE;
 
-        @KeyField_
         public static StringField UUID;
 
         public static StringField NAME;
 
-        @Target(SubType.class)
         public static GlobField<SubType> SUB_ELEMENT;
 
-        @Target(SubTypeWWithoutKey.class)
         public static GlobArrayField<SubTypeWWithoutKey> COUNTS;
 
-        @Targets({SubType.class})
         public static GlobUnionField UNION_ELEMENT;
 
-        @Targets({SubType.class})
         public static GlobArrayUnionField ARRAY_UNION_ELEMENT;
 
         static {
@@ -428,7 +420,6 @@ public class ChangeSetGsonTest {
     public static class SubType {
         public static final GlobType TYPE;
 
-        @KeyField_
         public static final StringField UUID;
 
         public static final StringField SUB_NAME;
@@ -445,7 +436,6 @@ public class ChangeSetGsonTest {
     public static class SubTypeWWithoutKey {
         public static GlobType TYPE;
 
-        @KeyField_
         public static StringField UUID;
 
         public static IntegerField COUNT;
