@@ -1,7 +1,80 @@
-The library use com.google.code.gson to encode and decode json to and from Globs (without introspection)
-It produces standard json and mostly all the json can be read directly to globs.
-There is additinal annotation to parse json where a field is a value. For exemple the OpenApi json format put the http
-code as value:
+# Globs JSON (gson)
+
+Encode and decode [Glob](https://globsframework.org)s to and from JSON with `com.google.code.gson`, and
+**without introspection**: every field is handled by walking the `GlobType` metamodel with a field visitor.
+The library also serializes the metamodel itself (`GlobType` ⇄ JSON), so a type can be shipped over the wire
+and rebuilt at runtime.
+
+The output is standard JSON, and almost any JSON can be read straight into Globs.
+
+Two properties shape everything else:
+
+- **unset is not null.** An unset field is simply not written; an explicit JSON `null` is read back as a set
+  null. Round-tripping a foreign document therefore preserves its exact field set.
+- **type identity travels in `_kind`,** optionally. With `_kind` present, a `GlobTypeResolver` rebuilds the
+  type; without it, the caller supplies the `GlobType`.
+
+## Requirements
+
+Java 21, `org.globsframework:globs`, `com.google.code.gson:gson`.
+
+## Installation
+
+```xml
+<dependency>
+    <groupId>org.globsframework</groupId>
+    <artifactId>globs-gson</artifactId>
+    <version>5.3.0</version>
+</dependency>
+```
+
+## Encoding and decoding
+
+```java
+String json = GSonUtils.encode(glob);                    // encode(glob, true) adds "_kind"
+String pretty = GSonUtils.niceEncode(glob);
+GSonUtils.encode(writer, glob);                          // straight to a Writer, no intermediate String
+
+Glob decoded = GSonUtils.decode(new StringReader(json), LocalType.TYPE);
+Glob byKind  = GSonUtils.decode(json, resolver);         // the type comes from "_kind"
+Glob[] all   = GSonUtils.decodeArray(reader, LocalType.TYPE);
+GSonUtils.decodeArray(reader, LocalType.TYPE, glob -> consume(glob));   // streamed, one Glob at a time
+
+String typeAsJson = GSonUtils.encodeGlobType(LocalType.TYPE);           // the metamodel itself
+GlobType type = GSonUtils.decodeGlobType(typeAsJson, AllJsonAnnotations.RESOLVER, true);
+```
+
+`GSonUtils.encodeHidSensitiveData(glob)` replaces the values of the fields annotated `JsonHideValue` — for
+logs.
+
+### Which entry point
+
+There are three implementations, on purpose:
+
+| | Use it for |
+| --- | --- |
+| `GSonUtils` | the default: streaming, no intermediate object graph |
+| `GlobsGson.createBuilder(resolver)` | a configured `Gson`, needed whenever a `GlobType`, a `GlobTypeSet` or a `ChangeSet` is involved, or when Globs are nested inside other Gson-serialized objects |
+| `GlobJsonService` / `JsonSerializerServiceImpl` | repeated encode/decode of the same type — it pre-compiles one serializer per field — and the only path supporting `ToStringFieldJsonSerializer`, `JsonHideValue` and the `JsonFlatten*` family |
+
+They do not all support the same annotations; `CLAUDE.md` has the coverage table.
+
+## Annotations
+
+Under `json/annottations/` (note the spelling), each as the usual Glob + `@interface` pair, registered in
+`AllJsonAnnotations`:
+
+| Annotation | Effect |
+| --- | --- |
+| `FieldNameAnnotation` (core) | the JSON name of a field, when it is not the Java name |
+| `JsonDateFormat` / `JsonDateTimeFormat` | the pattern for a date/time field |
+| `IsJsonContent` | the String field already holds raw JSON — written unquoted, kept verbatim |
+| `JsonValueAsField` + `JsonAsObject` | encode an array as a JSON *object* keyed by one of the target type's fields |
+| `JsonHideValue` | the value is masked by `encodeHidSensitiveData` |
+| `JsonFlatten` family | absorb unknown JSON names into an array of key/value globs — an arbitrary-key map as Globs |
+
+`JsonValueAsField` is what reads a document whose *keys* are data. The OpenAPI format is the usual example,
+where the HTTP code is a key:
 
 ```
 ...
@@ -12,15 +85,16 @@ code as value:
        }    
 ```
 
-When the Gson is read and write using Globs the attribut _kind can be added. It allow the reader to instantiate the Glob
-by finding the corresponding GlobType in the Model.
-Else the GlobType must be provided
+When a Glob is read or written with `_kind`, the reader can instantiate it by finding the corresponding
+`GlobType` in the model. Otherwise the `GlobType` must be provided:
 
-```
-            Glob decode = GSonUtils.decode(new StringReader("{\"id\":24,\"name\":\"TEST éè\",\"arrival\":\"2019-09-13 13:15:21\"}"), LocalType.TYPE);
+```java
+Glob decode = GSonUtils.decode(new StringReader("{\"id\":24,\"name\":\"TEST éè\",\"arrival\":\"2019-09-13 13:15:21\"}"), LocalType.TYPE);
 ```
 
-An exemple for a Shopify product :
+## A real example
+
+Here is a Shopify product:
 
 ```
 {
@@ -52,9 +126,9 @@ An exemple for a Shopify product :
       "price": "1.66",
 ```
 
-this json can be read using the floowing GlobType.
-And the json can be produce back.
-The fact that he glob differentiate null and unset allow the library to generate json field only for unset field.
+It is read with the `GlobType` below, and written back from it. Because a Glob tells *unset* from *null*, the
+document that comes back out has exactly the fields the document that came in had — `template_suffix: null`
+stays a null, and a field that was absent stays absent.
 
 ```
 public class ShopifyProductType {
@@ -96,3 +170,28 @@ public class ShopifyProductType {
     public static GlobArrayField variants;
 
 ```
+
+
+## ChangeSet
+
+`ChangeSet`s serialize through the Gson adapters. Reading is two-phase: a `PreChangeSet` comes back first
+and only becomes a `ChangeSet` once the caller supplies a `GlobAccessor` (`preChangeSet.resolve(accessor)`),
+because resolving a change needs access to the existing globs.
+
+## Building
+
+```bash
+mvn -o test                                    # JUnit 4 in this repo
+mvn -o test -Dtest=GSonUtilsTest#globWriterTest
+```
+
+`PerfReadWriteTest` guards the hot paths.
+
+## License
+
+Apache License 2.0 — see <https://www.apache.org/licenses/LICENSE-2.0.txt>.
+
+## Links
+
+- [Globs Framework](https://globsframework.org)
+- [GitHub repository](https://github.com/globsframework/globs-gson)
