@@ -130,46 +130,50 @@ It is read with the `GlobType` below, and written back from it. Because a Glob t
 document that comes back out has exactly the fields the document that came in had — `template_suffix: null`
 stays a null, and a field that was absent stays absent.
 
-```
+```java
 public class ShopifyProductType {
     public static final String resourceType = "product";
 
-    @ShopifyResourceType_(resourceType)
-    public static GlobType TYPE;
+    public static final GlobType TYPE;
 
-    @KeyField
-    @GraphqlName_("legacyResourceId")
-    public static LongField id;
+    public static final LongField id;
+    public static final StringField admin_graphql_api_id;
+    public static final DateTimeField created_at;
+    public static final DateTimeField updated_at;
+    public static final StringField title;
+    public static final StringField handle;
+    public static final StringField vendor;
+    public static final StringField body_html;
+    public static final GlobArrayField<ShopifyProductOptionType> options;
+    public static final GlobArrayField<ShopifyVariantType> variants;
 
-    @GraphqlName_("id")
-    @FieldNameAnnotation("admin_graphql_api_id")
-    public static StringField admin_graphql_api_id;
+    static {
+        GlobTypeBuilder builder = GlobTypeBuilderFactory.create("ShopifyProductType");
+        builder.addAnnotation(ShopifyResourceType.create(resourceType));
 
-    @FieldNameAnnotation("created_at")
-    public static DateTimeField created_at;
+        id = builder.declareLongField("id", KeyField.ZERO, GraphqlName.create("legacyResourceId"));
+        admin_graphql_api_id = builder.declareStringField("admin_graphql_api_id",
+                FieldName.create("admin_graphql_api_id"), GraphqlName.create("id"));
+        created_at = builder.declareDateTimeField("created_at", FieldName.create("created_at"));
+        updated_at = builder.declareDateTimeField("updated_at", FieldName.create("updated_at"));
+        title = builder.declareStringField("title");
+        handle = builder.declareStringField("handle");
+        vendor = builder.declareStringField("vendor");
+        body_html = builder.declareStringField("body_html",
+                FieldName.create("body_html"), GraphqlName.create("descriptionHtml"));
+        options = builder.declareGlobArrayField("options", () -> ShopifyProductOptionType.TYPE,
+                FieldName.create("options"));
+        variants = builder.declareGlobArrayField("variants", () -> ShopifyVariantType.TYPE,
+                ShopifyConnection.UNIQUE_GLOB);
 
-    @FieldNameAnnotation("updated_at")
-    public static DateTimeField updated_at;
-
-    public static StringField title;
-
-    public static StringField handle;
-
-    public static StringField vendor;
-
-    @FieldNameAnnotation("body_html")
-    @GraphqlName_("descriptionHtml")
-    public static StringField body_html;
-
-    @FieldNameAnnotation("options")
-    @Target(ShopifyProductOptionType.class)
-    public static GlobArrayField options;
-
-    @Target(ShopifyVariantType.class)
-    @ShopifyConnection_
-    public static GlobArrayField variants;
-
+        TYPE = builder.build();
+    }
+}
 ```
+
+`FieldName` is core's; `ShopifyResourceType`, `GraphqlName` and `ShopifyConnection` are the application's
+own, declared the same way as any Glob annotation — `create(value)` when they carry one, `UNIQUE_GLOB` when
+they do not.
 
 
 ## ChangeSet
