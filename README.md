@@ -66,7 +66,7 @@ Under `json/annottations/` (note the spelling), each as the usual Glob + `@inter
 
 | Annotation | Effect |
 | --- | --- |
-| `FieldNameAnnotation` (core) | the JSON name of a field, when it is not the Java name |
+| `FieldName` (core) | the JSON name of a field, when it is not the Java name |
 | `JsonDateFormat` / `JsonDateTimeFormat` | the pattern for a date/time field |
 | `IsJsonContent` | the String field already holds raw JSON — written unquoted, kept verbatim |
 | `JsonValueAsField` + `JsonAsObject` | encode an array as a JSON *object* keyed by one of the target type's fields |
