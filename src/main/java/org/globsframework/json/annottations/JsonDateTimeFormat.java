@@ -33,14 +33,6 @@ public class JsonDateTimeFormat {
         nullValue = typeBuilder.declareStringField("nullValue");
         TYPE = typeBuilder.build();
         UNIQUE_KEY = KeyBuilder.newEmptyKey(TYPE);
-//        GlobTypeLoaderFactory.create(JsonDateTimeFormat.class, "JsonDateTimeFormat")
-//                .register(GlobCreateFromAnnotation.class, annotation -> TYPE.instantiate()
-//                        .set(format, ((JsonDateTimeFormat_) annotation).pattern())
-//                        .set(useLocalZone, ((JsonDateTimeFormat_) annotation).asLocal())
-//                        .set(nullValue, ((JsonDateTimeFormat_) annotation).nullValue())
-//                        .set(strictIso8601, ((JsonDateTimeFormat_) annotation).strictIso8601())
-//                )
-//                .load();
     }
 
     public static Glob create(String pattern, boolean useLocalZone, String nullValue) {

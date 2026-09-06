@@ -76,16 +76,16 @@ Rough annotation coverage per path:
 
 ## Annotation convention
 
-Every JSON annotation exists as a **pair** under `json/annottations/` (note the spelling of the
-package):
+A JSON annotation is one file under `json/annottations/` (note the spelling of the package):
+`Xxx.java`, the glob-native annotation — a `GlobType TYPE` built with `GlobTypeBuilderFactory`, plus
+`UNIQUE_KEY` / `UNIQUE_GLOB` (or fields, when the annotation is parameterized like
+`JsonDateTimeFormat`). This is what runtime code tests with `field.hasAnnotation(Xxx.UNIQUE_KEY)`.
 
-- `Xxx.java` — the glob-native annotation: a `GlobType TYPE` built with `GlobTypeBuilderFactory`,
-  plus `UNIQUE_KEY` / `UNIQUE_GLOB` (or fields, when the annotation is parameterized like
-  `JsonDateTimeFormat`). This is what runtime code tests with `field.hasAnnotation(Xxx.UNIQUE_KEY)`.
-- `Xxx_.java` — the plain Java `@interface`, holding `GlobType TYPE = Xxx.TYPE;`, used when a
-  `GlobType` is declared as a Java class (the README's `ShopifyProductType` style).
+There used to be a second file per annotation, `Xxx_.java`, a plain Java `@interface` mirroring the
+type for `GlobType`s declared as Java classes. **That half is gone across the workspace — do not
+write one.**
 
-Adding an annotation means: write both files, register `Xxx.TYPE` in
+Adding an annotation means: write the file, register `Xxx.TYPE` in
 `AllJsonAnnotations.MODEL`, and implement it in whichever of the three paths must support it.
 `AllJsonAnnotations.RESOLVER` (core annotations + JSON annotations) is what callers pass to
 `GSonUtils.decodeGlobType`.
