@@ -127,7 +127,7 @@ per-field lookups. Prefer keeping allocations out of these paths.
 ### Core callers were tried on `JsonSerializerServiceImpl`, and reverted (2026-08-21)
 
 globs-bin-serialisation and globs-grpc drive their per-field leaves through a core *caller*
-(`FromGlobCaller` / `ToGlobCaller`, `org.globsframework.core.model.caller`): a generated class holds each leaf
+(`FromGlobCaller` / `ToGlobCallerFactory`, `org.globsframework.core.model.caller`): a generated class holds each leaf
 in a `static final` and unrolls the loop, so every field is a monomorphic call instead of the one megamorphic
 call site a loop over a table of closures gives. The same was implemented here for the `GlobJsonService` path
 only — both composites of `JsonSerializerServiceImpl`, a `call` written out in each of the ~43 leaves of
