@@ -69,10 +69,16 @@ Rough annotation coverage per path:
 | Annotation | `GSonUtils` | Gson adapters | `GlobJsonService` |
 | --- | --- | --- | --- |
 | `IsJsonContent` | ✓ | ✓ | ✓ |
-| `JsonDateFormat` / `JsonDateTimeFormat` | ✓ | ✓ | ✓ |
-| `JsonAsObject` + `JsonValueAsField` | ✓ | — | ✓ |
+| `JsonDateFormat` / `JsonDateTimeFormat` | ✓ | write only | ✓ |
+| `JsonAsObject` + `JsonValueAsField` | ✓ | write only | ✓ |
 | `JsonHideValue` | via `encodeHidSensitiveData` | — | ✓ |
 | `JsonFlatten*` | — | — | ✓ |
+
+*write only* means the Gson-adapter path honours the annotation when writing — `JsonFieldValueVisitor`,
+used by `GlobGsonAdapter` and `KeyGsonAdapter`, calls `GSonUtils.getCachedDate*Formatter` and has the
+`JsonAsObject` / `JsonValueAsField` branch — but not when reading: `GSonVisitor.visitDate` /
+`visitDateTime` parse with a hard-coded `DateTimeFormatter.ISO_DATE` / `ISO_DATE_TIME`, and there is no
+`JsonAsObject` branch on that side.
 
 ## Annotation convention
 
@@ -119,15 +125,15 @@ requires access to existing globs, notably for union-typed key fields.
 
 `PerfReadWriteTest` guards the hot paths, and several classes exist purely for throughput:
 `GSonUtils.NoLockStringReader` and `StringWriterToBuilder` avoid `StringReader`/`StringBuffer`
-synchronization, date formatters are cached in `CACHE_DATE` / `CACHE_DATE_TIME` (keyed by `Field`),
-`helper/ISO8601Utils` is a hand-rolled ISO-8601 parser/formatter used by the `useFastIso8601` /
-`strictIso8601` options, and the field-indexed serializer arrays in `JsonSerializerServiceImpl` replace
+synchronization, date formatters are cached in `CACHE_DATE` (keyed by the format pattern) and
+`CACHE_DATE_TIME` (keyed by `Field`), `helper/ISO8601Utils` is a hand-rolled ISO-8601
+parser/formatter used by the `useFastIso8601` / `strictIso8601` options, and the field-indexed serializer arrays in `JsonSerializerServiceImpl` replace
 per-field lookups. Prefer keeping allocations out of these paths.
 
 ### Core callers were tried on `JsonSerializerServiceImpl`, and reverted (2026-08-21)
 
 globs-bin-serialisation and globs-grpc drive their per-field leaves through a core *caller*
-(`FromGlobCaller` / `ToGlobCallerFactory`, `org.globsframework.core.model.caller`): a generated class holds each leaf
+(`FromGlobCallerFactory` / `ToGlobCallerFactory`, `org.globsframework.core.model.caller`): a generated class holds each leaf
 in a `static final` and unrolls the loop, so every field is a monomorphic call instead of the one megamorphic
 call site a loop over a table of closures gives. The same was implemented here for the `GlobJsonService` path
 only — both composites of `JsonSerializerServiceImpl`, a `call` written out in each of the ~43 leaves of
